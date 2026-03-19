@@ -133,9 +133,8 @@ async function loadGames() {
       <div class="text-sm text-gray-300 mt-2 space-y-1">
         ${game.player_data.map(p => `
           <div class="flex justify-between">
-            <span>${p.player}</span>
+            <span>${p.player} ${p.player === game.starting_player ? `<span class="text-xs text-yellow-400">started</span>` : ''}</span>
             <span class="text-purple-300">${p.commander}</span>
-            ${p.player === game.starting_player ? '<span class="text-xs text-yellow-400 ml-2">starts</span>' : ''}
           </div>
         `).join('')}
       </div>
