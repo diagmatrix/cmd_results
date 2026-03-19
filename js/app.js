@@ -228,7 +228,10 @@ async function loadStats() {
     }).join('');
 }
 
+import { renderNavBar } from './navigation.js';
+
 document.addEventListener('DOMContentLoaded', () => {
+  renderNavBar();
   initForm();
   loadGames();
   loadStats();
