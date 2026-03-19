@@ -190,6 +190,7 @@ async function loadStats() {
 
   document.getElementById('playerStats').innerHTML = Object.entries(playerStats)
     .sort((a, b) => b[1].wins - a[1].wins)
+    .slice(0, 8)
     .map(([player, s]) => `
       <div class="bg-gray-700 rounded p-3">
         <div class="font-semibold">${player}</div>
@@ -201,6 +202,7 @@ async function loadStats() {
 
   document.getElementById('commanderStats').innerHTML = Object.entries(commanderStats)
     .sort((a, b) => b[1].wins - a[1].wins)
+    .slice(0, 8)
     .map(([commander, s]) => `
       <div class="bg-gray-700 rounded p-3">
         <div class="font-semibold text-purple-300">${commander}</div>
@@ -211,13 +213,20 @@ async function loadStats() {
 
   document.getElementById('comboStats').innerHTML = Object.entries(comboStats)
     .sort((a, b) => b[1].wins - a[1].wins)
-    .map(([combo, s]) => `
-      <div class="bg-gray-700 rounded p-3">
-        <div class="font-semibold">${combo}</div>
-        <div class="text-2xl font-bold">${s.wins}/${s.games}</div>
-        <div class="text-sm text-gray-400">${((s.wins/s.games)*100).toFixed(0)}% win rate</div>
-      </div>
-    `).join('');
+    .slice(0, 8)
+    .map(([combo, s]) => {
+      const [player, commander] = combo.split(' + ');
+      return `
+        <div class="bg-gray-700 rounded p-3">
+          <div class="font-semibold">${player}</div>
+          <div class="text-purple-300">${commander}</div>
+          <div class="flex items-baseline justify-between">
+            <div class="text-2xl font-bold">${s.wins}/${s.games}</div>
+            <div class="text-gray-400">${((s.wins/s.games)*100).toFixed(0)}% win rate</div>
+          </div>
+        </div>
+      `;
+    }).join('');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
