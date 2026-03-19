@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commander Game Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 md:p-6">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-gray-800 rounded-lg p-4 text-center">
+        <div class="text-4xl font-bold" id="totalGames">0</div>
+        <div class="text-gray-400">Total Games</div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-semibold mb-3 text-blue-400">Player Stats</h2>
+        <div class="grid grid-cols-2 gap-2" id="playerStats"></div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-semibold mb-3 text-purple-400">Commander Stats</h2>
+        <div class="grid grid-cols-2 gap-2" id="commanderStats"></div>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-semibold mb-3 text-green-400">Player + Commander</h2>
+        <div class="grid grid-cols-2 gap-2" id="comboStats"></div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="bg-gray-800 rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Add Game</h2>
+        <form id="gameForm" class="space-y-4">
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label class="text-sm">Players & Commanders</label>
+              <button type="button" id="addPlayer" class="text-sm text-blue-400 hover:text-blue-300">+ Add Player</button>
+            </div>
+            <div id="playerRows" class="space-y-2"></div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm mb-1">Date</label>
+              <input type="date" id="gameDate" class="w-full bg-gray-700 rounded px-3 py-2" required>
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Winner</label>
+              <select id="winner" class="w-full bg-gray-700 rounded px-3 py-2" required>
+                <option value="">Select...</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm mb-1">Starting Player</label>
+              <select id="startingPlayer" class="w-full bg-gray-700 rounded px-3 py-2" required>
+                <option value="">Select...</option>
+              </select>
+            </div>
+          </div>
+          
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold">
+            Add Game
+          </button>
+        </form>
+      </div>
+      
+      <div class="bg-gray-800 rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Recent Games</h2>
+        <div id="gamesList" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
