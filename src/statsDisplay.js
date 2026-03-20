@@ -1,93 +1,50 @@
-import { fetchAllGames } from './supabaseService.js';
+import { fetchPlayers, fetchCommanders, fetchCombos, fetchStats, Player, Commander, PlayerCommander, Stats } from './supabaseService.js';
 import { escapeHtml } from './utils.js';
 
 /**
- * Calculates statistics from all games.
- * @param {Array} games - Array of game objects.
- * @returns {Object} Object containing playerStats, commanderStats, comboStats, and startingWins.
- */
-function calculateStats(games) {
-    const playerStats = {};
-    const commanderStats = {};
-    const comboStats = {};
-    const startingWins = {};
-
-    games.forEach(game => {
-        const winner = game.winner;
-        const starting = game.starting_player;
-
-        startingWins[starting] = startingWins[starting] || { games: 0, wins: 0 };
-        startingWins[starting].games++;
-        if (winner === starting) startingWins[starting].wins++;
-
-        game.player_data.forEach(p => {
-            playerStats[p.player] = playerStats[p.player] || { games: 0, wins: 0 };
-            playerStats[p.player].games++;
-            if (p.player === winner) playerStats[p.player].wins++;
-
-            commanderStats[p.commander] = commanderStats[p.commander] || { games: 0, wins: 0 };
-            commanderStats[p.commander].games++;
-            if (p.player === winner) commanderStats[p.commander].wins++;
-
-            const comboKey = `${p.player} + ${p.commander}`;
-            comboStats[comboKey] = comboStats[comboKey] || { games: 0, wins: 0 };
-            comboStats[comboKey].games++;
-            if (p.player === winner) comboStats[comboKey].wins++;
-        });
-    });
-
-    return { playerStats, commanderStats, comboStats, startingWins };
-}
-
-/**
  * Renders a stat card for a player.
- * @param {string} player - Player name.
- * @param {Object} s - Stats object with wins and games.
- * @param {Object} startingWins - Starting player win data.
+ * @param {Player} player - Player object.
  * @returns {string} HTML string for the player stat card.
  */
-function renderPlayerStatCard(player, s, startingWins) {
+function renderPlayerStatCard(player) {
     return `
       <div class="bg-gray-700 rounded p-3">
-        <div class="font-semibold">${escapeHtml(player)}</div>
-        <div class="text-2xl font-bold">${s.wins}/${s.games}</div>
-        <div class="text-sm text-gray-400">${((s.wins / s.games) * 100).toFixed(0)}% win rate</div>
-        <div class="text-xs text-yellow-400 mt-1">${startingWins[player] ? `${startingWins[player].wins}/${startingWins[player].games} going first` : ''}</div>
+        <div class="font-semibold">${escapeHtml(player.player)}</div>
+        <div class="text-2xl font-bold">${player.wins}/${player.games}</div>
+        <div class="text-sm text-gray-400">${player.winrate()}% win rate</div>
+        <div class="text-xs text-yellow-400 mt-1">${player.started > 0 ? `${player.startedWon}/${player.started} going first` : 'never gone first'}</div>
       </div>
     `;
 }
 
 /**
  * Renders a stat card for a commander.
- * @param {string} commander - Commander name.
- * @param {Object} s - Stats object with wins and games.
+ * @param {Commander} commander - Commander object.
  * @returns {string} HTML string for the commander stat card.
  */
-function renderCommanderStatCard(commander, s) {
+function renderCommanderStatCard(commander) {
     return `
       <div class="bg-gray-700 rounded p-3">
-        <div class="font-semibold text-purple-300">${escapeHtml(commander)}</div>
-        <div class="text-2xl font-bold">${s.wins}/${s.games}</div>
-        <div class="text-sm text-gray-400">${((s.wins / s.games) * 100).toFixed(0)}% win rate</div>
+        <div class="font-semibold text-purple-300">${escapeHtml(commander.commander)}</div>
+        <div class="text-2xl font-bold">${commander.wins}/${commander.games}</div>
+        <div class="text-sm text-gray-400">${commander.winrate()}% win rate</div>
+        <div class="text-xs text-yellow-400 mt-1">${commander.started > 0 ? `${commander.startedWon}/${commander.started} going first` : 'never gone first'}</div>
       </div>
     `;
 }
 
 /**
  * Renders a stat card for a player+commander combo.
- * @param {string} combo - Combo string in format "player + commander".
- * @param {Object} s - Stats object with wins and games.
+ * @param {PlayerCommander} combo - Combo object.
  * @returns {string} HTML string for the combo stat card.
  */
-function renderComboStatCard(combo, s) {
-    const [player, commander] = combo.split(' + ');
+function renderComboStatCard(combo) {
     return `
       <div class="bg-gray-700 rounded p-3">
-        <div class="font-semibold">${escapeHtml(player)}</div>
-        <div class="text-purple-300">${escapeHtml(commander)}</div>
-        <div class="flex items-baseline justify-between">
-          <div class="text-2xl font-bold">${s.wins}/${s.games}</div>
-          <div class="text-gray-400">${((s.wins / s.games) * 100).toFixed(0)}% win rate</div>
+        <div class="font-semibold">${escapeHtml(combo.player)}</div>
+        <div class="text-purple-300">${escapeHtml(combo.commander)}</div>
+        <div class="text-2xl font-bold">${combo.wins}/${combo.games}</div>
+        <div class="text-sm text-gray-400">${combo.winrate()}% win rate</div>
         </div>
       </div>
     `;
@@ -97,35 +54,37 @@ function renderComboStatCard(combo, s) {
  * Loads and displays all statistics.
  */
 export async function loadStats() {
-    const games = await fetchAllGames();
+    const players = await fetchPlayers(8);
+    const commanders = await fetchCommanders(8);
+    const combos = await fetchCombos(8);
+    const stats = await fetchStats();
 
-    if (!games.length) {
-        document.getElementById('totalGames').textContent = '0';
+    if (!players.length && !commanders.length && !combos.length || !stats) {
         document.getElementById('playerStats').innerHTML = '';
         document.getElementById('commanderStats').innerHTML = '';
         document.getElementById('comboStats').innerHTML = '';
+        document.getElementById('totalGames').textContent = '0';
+        document.getElementById('totalPlayers').textContent = '0';
+        document.getElementById('totalCommanders').textContent = '0';
         return;
     }
 
-    const { playerStats, commanderStats, comboStats, startingWins } = calculateStats(games);
-
-    document.getElementById('totalGames').textContent = games.length;
-
-    document.getElementById('playerStats').innerHTML = Object.entries(playerStats)
-        .sort((a, b) => b[1].wins - a[1].wins)
-        .slice(0, 8)
-        .map(([player, s]) => renderPlayerStatCard(player, s, startingWins))
+    document.getElementById('playerStats').innerHTML = Object.entries(players)
+        .sort((a, b) => b[1].games - a[1].games)
+        .map(([_, player]) => renderPlayerStatCard(player))
         .join('');
 
-    document.getElementById('commanderStats').innerHTML = Object.entries(commanderStats)
-        .sort((a, b) => b[1].wins - a[1].wins)
-        .slice(0, 8)
-        .map(([commander, s]) => renderCommanderStatCard(commander, s))
+    document.getElementById('commanderStats').innerHTML = Object.entries(commanders)
+        .sort((a, b) => b[1].games - a[1].games)
+        .map(([_, commander]) => renderCommanderStatCard(commander))
         .join('');
 
-    document.getElementById('comboStats').innerHTML = Object.entries(comboStats)
+    document.getElementById('comboStats').innerHTML = Object.entries(combos)
         .sort((a, b) => b[1].wins - a[1].wins)
-        .slice(0, 8)
-        .map(([combo, s]) => renderComboStatCard(combo, s))
+        .map(([_, combo]) => renderComboStatCard(combo))
         .join('');
+
+    document.getElementById('totalGames').textContent = stats.games;
+    document.getElementById('totalPlayers').textContent = stats.players;
+    document.getElementById('totalCommanders').textContent = stats.commanders;
 }

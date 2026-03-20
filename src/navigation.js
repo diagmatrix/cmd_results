@@ -12,7 +12,10 @@ export function renderNavBar() {
   <div class="flex items-center justify-start h-16 w-full">
     <div class="flex space-x-6">
       <a href="index.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Home</a>
-      <a href="games-table.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Games Table</a>
+      <a href="index.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Games</a>
+      <a href="index.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Commanders</a>
+      <a href="index.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Players</a>
+      <a href="index.html" class="text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition">Stats</a>
     </div>
   </div>
 </nav>
