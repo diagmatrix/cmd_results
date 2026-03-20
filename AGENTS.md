@@ -12,131 +12,151 @@
 | `npm run deploy` | Deploy to GitHub Pages (gh-pages branch) |
 | `npx serve . -l 8000` | Local development server |
 
-**No linters or automated tests are configured.** Manual testing required.
+**Testing:** No automated tests configured. Manual testing required - serve locally, open browser, verify in console.
 
 ## Project Structure
 
-| File | Purpose |
-|------|---------|
-| `index.html` | Main UI with Tailwind CSS |
-| `src/home.js` | Home page entry point |
-| `src/components/GameForm.js` | Reusable Web Component for adding games |
-| `src/config.js` | Supabase credentials (git-ignored) |
-| `supabase_setup.sql` | DB schema and RLS policies |
-| `.env` | Environment variables (git-ignored) |
+```
+/home/manuel/Documents/cmd_results
+├── index.html              # Main UI with Tailwind CSS
+├── src/
+│   ├── home.js             # Home page entry point
+│   ├── navigation.js       # Nav bar rendering
+│   ├── gamesList.js        # Games list display
+│   ├── statsDisplay.js     # Statistics rendering
+│   ├── supabaseService.js  # Database operations & data classes
+│   ├── utils.js            # Utility functions (e.g., escapeHtml)
+│   ├── config.js           # Supabase credentials (git-ignored)
+│   └── components/
+│       └── GameForm.js     # Reusable Web Component for adding games
+├── supabase_setup.sql      # DB schema, RLS policies, views
+└── .env                    # Environment variables (git-ignored)
+```
+
+---
 
 ## Code Style Guidelines
 
+### Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Functions/variables | camelCase | `loadGames()`, `playerData` |
+| Constants | SCREAMING_SNAKE_CASE | `PLAYER_COUNT` |
+| Classes | PascalCase | `Player`, `GameForm` |
+| Database columns | snake_case | `games_played`, `player_data` |
+| DOM element IDs | camelCase | `gameForm`, `playerRows` |
+| Custom events | kebab-case | `game-form-submitted` |
+
 ### JavaScript
 
-**Naming Conventions:**
-- Functions/variables: `camelCase`
-- Constants: `SCREAMING_SNAKE_CASE`
-- DOM selectors: descriptive names
-
-```javascript
-const PLAYER_COUNT = 3;
-
-async function loadGames() {
-  try {
-    const { data, error } = await supabase
-      .from('games')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.error('Error loading games:', err);
-    return [];
-  }
-}
-```
-
-**Imports:** ES6 modules, CDN via ESM, local via relative paths
-
+**Imports:** ES6 modules with CDN via ESM, local via relative paths
 ```javascript
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 ```
 
-**Error Handling:** Always use try/catch for async operations, log with `console.error()`, show user alerts for validation errors
+**Functions:** Always use arrow functions for callbacks, named functions for exports
+```javascript
+const handleSubmit = async (e) => { /* ... */ };
+export async function loadGames() { /* ... */ }
+```
+
+**JSDoc Required:** All exported functions must have JSDoc comments
+```javascript
+/**
+ * Fetches recent games from the database.
+ * @param {number} limit - Maximum number of games to fetch.
+ * @returns {Promise<Array>} Array of game objects.
+ */
+export async function fetchRecentGames(limit = 10) { /* ... */ }
+```
+
+**Error Handling Pattern:**
+```javascript
+async function fetchData() {
+    try {
+        const { data, error } = await supabase.from('table').select('*');
+        if (error) throw error;
+        return data;
+    } catch (err) {
+        console.error('Error loading data:', err);
+        return [];
+    }
+}
+```
+
+**Web Components:** Use `CustomEvent` with `bubbles: true, composed: true` for cross-shadow-DOM events
+```javascript
+this.dispatchEvent(new CustomEvent('game-form-submitted', {
+    bubbles: true,
+    composed: true,
+    detail: { playerData, winner }
+}));
+```
+
+**Null Checks:** Always check for null before accessing properties
+```javascript
+if (form) form.removeEventListener('submit', handleSubmit);
+```
 
 ### HTML/Tailwind CSS
 
 - Semantic HTML5 elements
 - Tailwind utilities only (no custom CSS)
-- Dark theme: `bg-gray-900`, `text-gray-100`
+- Dark theme colors: `bg-gray-900`, `bg-gray-800`, `bg-gray-700`
+- Text colors: `text-gray-100`, `text-gray-400`, accent colors (`text-blue-400`, `text-purple-400`)
 
-**Class Patterns:** Layout (`grid grid-cols-2`, `flex justify-between`), spacing (`p-4`, `mb-6`), colors (`bg-gray-700`, `text-blue-400`)
-
-```html
-<div class="bg-gray-800 rounded-lg p-4">
-  <h2 class="text-lg font-semibold mb-3 text-purple-400">Stats</h2>
-  <div id="commanderStats" class="grid grid-cols-2 gap-2"></div>
-</div>
-```
+**Class Patterns:**
+- Layout: `grid grid-cols-2`, `flex justify-between`, `space-y-4`
+- Spacing: `p-4`, `mb-6`, `gap-4`
+- Cards: `bg-gray-800 rounded-lg p-4`
 
 ### SQL Conventions
 
 - UPPERCASE keywords: `CREATE TABLE`, `SELECT`, `INSERT`
 - Lowercase identifiers: `games`, `player_data`
-- snake_case columns
+- snake_case columns: `game_date`, `starting_player`
 
 ```sql
-CREATE TABLE IF NOT EXISTS games (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  created_at timestamp DEFAULT now(),
-  player_data jsonb NOT NULL,
-  winner text NOT NULL
+CREATE TABLE IF NOT EXISTS public.raw_games (
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    player_data jsonb NOT NULL,
+    winner text NOT NULL
 );
 ```
 
-## JavaScript Function Reference
+---
 
-All functions must be documented with JSDoc comments.
+## Key Components
 
-### js/navigation.js
-
-```javascript
-/**
- * Renders the top navigation bar for the application.
- * @returns {void}
- */
-export function renderNavBar()
-```
-
-### src/components/GameForm.js
-
-Reusable Web Component (`<game-form>`) that encapsulates all form logic.
-
-**Usage:**
-```html
-<game-form></game-form>
-```
-
-```javascript
-import './components/GameForm.js';
-
-const gameForm = document.querySelector('game-form');
-gameForm.addEventListener('game-form-submitted', (e) => {
-    console.log('Game saved:', e.detail);
-    // Reload stats, games list, etc.
-});
-gameForm.addEventListener('game-form-error', (e) => {
-    alert(e.detail.message);
-});
-```
+### `<game-form>` Web Component
 
 **Events:**
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `game-form-submitted` | `{ playerData, winner, startingPlayer, createdAt }` | Fired on successful save |
-| `game-form-error` | `{ message }` | Fired on validation or save error |
+| `game-form-submitted` | `{ playerData, winner, startingPlayer, createdAt }` | Success |
+| `game-form-error` | `{ message }` | Validation or save error |
 
-**Methods:**
-- `reset()` - Resets the form to initial state
+**Methods:** `reset()` - Resets form to initial state
+
+**Usage:**
+```javascript
+const gameForm = document.querySelector('game-form');
+gameForm.addEventListener('game-form-submitted', (e) => {
+    loadGamesList();
+    loadStats();
+});
+gameForm.addEventListener('game-form-error', (e) => alert(e.detail.message));
+```
+
+### Data Classes (`supabaseService.js`)
+
+- `Player` - player, games, wins, started, startedWon + winrate()
+- `Commander` - commander, games, wins, started, startedWon + winrate()
+- `PlayerCommander` - player, commander, games, wins, started, startedWon + winrate()
+- `Stats` - games, players, commanders
 
 ## Development Workflow
 
@@ -144,44 +164,21 @@ gameForm.addEventListener('game-form-error', (e) => {
 2. **Logic Changes** → Edit relevant `src/` modules
 3. **Database Changes** → Edit `supabase_setup.sql`, run in Supabase Dashboard
 
-**Testing:** No automated tests. Serve locally (`npx serve . -l 8000`), open browser, verify in console.
+## Database Schema
 
-## Database Setup
+**Table:** `raw_games(id, game_date, player_data jsonb, winner, starting_player, _created_at)`
 
-Create `.env` (git-ignored) with your Supabase credentials:
-```
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_anon_key
-```
-
-**Schema:** `games(id, created_at, player_data jsonb, winner, starting_player)`
+**Views:** `players_and_commanders`, `players`, `commanders`, `player_commander_combos`, `stats`
 
 **Modifying Schema:** Edit `supabase_setup.sql` and run in Supabase Dashboard → SQL Editor
-
-## Common Tasks
-
-### Adding a New Statistic
-1. Add calculation logic in `js/app.js`
-2. Add display element in `index.html`
-3. Test locally
-
-### Debugging Database Issues
-1. Check browser console for errors
-2. Verify `.env` has correct Supabase credentials
-3. Check Supabase Dashboard → Table Editor for data
-4. Test RLS policies in Dashboard → Authentication
-
-### Adding Players/Commanders
-The `<game-form>` component supports dynamic player rows (minimum 3, unlimited max). Click the "Add Player" button in the form to add more players.
 
 ## Git Workflow
 
 - Branch: `git checkout -b feature-name`
 - Commits: imperative mood ("Add player stats", "Fix commander validation")
-- PR to main branch, deploy via `npm run deploy`
 
-## Getting Help
+## Resources
 
 - [Supabase Docs](https://supabase.com/docs)
 - [Tailwind Docs](https://tailwindcss.com/docs)
-- [MTG Commander](https://mtgcommander.net/)
+- [MTG Commander Rules](https://mtgcommander.net/)
