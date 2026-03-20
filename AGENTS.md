@@ -19,8 +19,9 @@
 | File | Purpose |
 |------|---------|
 | `index.html` | Main UI with Tailwind CSS |
-| `js/app.js` | App logic, Supabase integration |
-| `js/config.js` | Supabase credentials (git-ignored) |
+| `src/home.js` | Home page entry point |
+| `src/components/GameForm.js` | Reusable Web Component for adding games |
+| `src/config.js` | Supabase credentials (git-ignored) |
 | `supabase_setup.sql` | DB schema and RLS policies |
 | `.env` | Environment variables (git-ignored) |
 
@@ -91,10 +92,56 @@ CREATE TABLE IF NOT EXISTS games (
 );
 ```
 
+## JavaScript Function Reference
+
+All functions must be documented with JSDoc comments.
+
+### js/navigation.js
+
+```javascript
+/**
+ * Renders the top navigation bar for the application.
+ * @returns {void}
+ */
+export function renderNavBar()
+```
+
+### src/components/GameForm.js
+
+Reusable Web Component (`<game-form>`) that encapsulates all form logic.
+
+**Usage:**
+```html
+<game-form></game-form>
+```
+
+```javascript
+import './components/GameForm.js';
+
+const gameForm = document.querySelector('game-form');
+gameForm.addEventListener('game-form-submitted', (e) => {
+    console.log('Game saved:', e.detail);
+    // Reload stats, games list, etc.
+});
+gameForm.addEventListener('game-form-error', (e) => {
+    alert(e.detail.message);
+});
+```
+
+**Events:**
+
+| Event | Detail | Description |
+|-------|--------|-------------|
+| `game-form-submitted` | `{ playerData, winner, startingPlayer, createdAt }` | Fired on successful save |
+| `game-form-error` | `{ message }` | Fired on validation or save error |
+
+**Methods:**
+- `reset()` - Resets the form to initial state
+
 ## Development Workflow
 
 1. **UI Changes** → Edit `index.html`
-2. **Logic Changes** → Edit `js/app.js`
+2. **Logic Changes** → Edit relevant `src/` modules
 3. **Database Changes** → Edit `supabase_setup.sql`, run in Supabase Dashboard
 
 **Testing:** No automated tests. Serve locally (`npx serve . -l 8000`), open browser, verify in console.
@@ -125,7 +172,7 @@ SUPABASE_ANON_KEY=your_anon_key
 4. Test RLS policies in Dashboard → Authentication
 
 ### Adding Players/Commanders
-The app supports dynamic player rows (minimum 3, unlimited max). Click the add button in the UI.
+The `<game-form>` component supports dynamic player rows (minimum 3, unlimited max). Click the "Add Player" button in the form to add more players.
 
 ## Git Workflow
 

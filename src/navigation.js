@@ -1,6 +1,6 @@
 /**
  * Renders the top navigation bar for the application.
- * @returns Top navigation bar
+ * @returns {void}
  */
 export function renderNavBar() {
   if (document.getElementById('mainTopNav')) {
