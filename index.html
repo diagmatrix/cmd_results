@@ -36,38 +36,7 @@
       <div class="grid lg:grid-cols-2 gap-6">
         <div class="bg-gray-800 rounded-lg p-6">
           <h2 class="text-xl font-semibold mb-4">Add Game</h2>
-          <form id="gameForm" class="space-y-4">
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <label class="text-sm">Players & Commanders</label>
-                <button type="button" id="addPlayer" class="text-sm text-blue-400 hover:text-blue-300">+ Add Player</button>
-              </div>
-              <div id="playerRows" class="space-y-2"></div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm mb-1">Date</label>
-                <input type="date" id="gameDate" class="w-full bg-gray-700 rounded px-3 py-2" required>
-              </div>
-              <div>
-                <label class="block text-sm mb-1">Winner</label>
-                <select id="winner" class="w-full bg-gray-700 rounded px-3 py-2" required>
-                  <option value="">Select...</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm mb-1">Starting Player</label>
-                <select id="startingPlayer" class="w-full bg-gray-700 rounded px-3 py-2" required>
-                  <option value="">Select...</option>
-                </select>
-              </div>
-            </div>
-            
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold">
-              Add Game
-            </button>
-          </form>
+          <game-form></game-form>
         </div>
         
         <div class="bg-gray-800 rounded-lg p-6">
@@ -78,6 +47,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./src/home.js"></script>
 </body>
 </html>
