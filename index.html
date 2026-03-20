@@ -11,24 +11,32 @@
     <div class="max-w-90 mx-auto">
       <h1 class="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
       
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="grid md:grid-cols-3 gap-4 mb-8">
         <div class="bg-gray-800 rounded-lg p-4 text-center">
           <div class="text-4xl font-bold" id="totalGames">0</div>
-          <div class="text-gray-400">Total Games</div>
+          <div class="text-gray-400">Total games recorded</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 text-center">
+          <div class="text-4xl font-bold" id="totalPlayers">0</div>
+          <div class="text-gray-400">Unique players</div>
+        </div>
+        <div class="bg-gray-800 rounded-lg p-4 text-center">
+          <div class="text-4xl font-bold" id="totalCommanders">0</div>
+          <div class="text-gray-400">Unique commanders</div>
         </div>
       </div>
 
       <div class="grid lg:grid-cols-3 gap-6 mb-8">
         <div class="bg-gray-800 rounded-lg p-4">
-          <h2 class="text-lg font-semibold mb-3 text-blue-400">Player Stats</h2>
+          <h2 class="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
           <div class="grid grid-cols-2 gap-2" id="playerStats"></div>
         </div>
         <div class="bg-gray-800 rounded-lg p-4">
-          <h2 class="text-lg font-semibold mb-3 text-purple-400">Commander Stats</h2>
+          <h2 class="text-lg font-semibold mb-3 text-purple-400 text-center">Top commanders by games played</h2>
           <div class="grid grid-cols-2 gap-2" id="commanderStats"></div>
         </div>
         <div class="bg-gray-800 rounded-lg p-4">
-          <h2 class="text-lg font-semibold mb-3 text-green-400">Player Commander's Stats</h2>
+          <h2 class="text-lg font-semibold mb-3 text-green-400 text-center">Top player + commander by games played</h2>
           <div class="grid grid-cols-2 gap-2" id="comboStats"></div>
         </div>
       </div>

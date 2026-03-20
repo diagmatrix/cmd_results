@@ -13,7 +13,7 @@ function renderGameCard(game) {
           <span class="font-semibold text-green-400">${game.winner}</span>
           <span class="text-gray-400"> won</span>
         </div>
-        <span class="text-xs text-gray-500">${new Date(game.created_at).toLocaleDateString()}</span>
+        <span class="text-xs text-gray-500">${new Date(game.game_date).toLocaleDateString()}</span>
       </div>
       <div class="text-sm text-gray-300 mt-2 space-y-1">
         ${game.player_data.map(p => `
