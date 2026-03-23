@@ -1,21 +1,54 @@
--- Create games table
+-- Create tables
 CREATE TABLE IF NOT EXISTS public.raw_games (
-	id uuid default gen_random_uuid() primary key,
-	game_date date not null default current_date,
-	player_data jsonb not null,
-	winner text not null,
-	starting_player text not null,
-	_created_at timestamp with time zone default now()
+	id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+	game_date DATE NOT NULL DEFAULT CURRENT_DATE,
+	player_data JSONB NOT NULL,
+	winner TEXT NOT NULL,
+	starting_player TEXT,
+	_created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
 ALTER TABLE public.raw_games ENABLE ROW LEVEL SECURITY;
-
 -- Policy: Anyone can insert games
 CREATE POLICY "Anyone can insert games" ON public.raw_games FOR INSERT WITH CHECK (true);
-
 -- Policy: Anyone can read all games
 CREATE POLICY "Anyone can read games" ON public.raw_games FOR SELECT USING (true);
+
+CREATE TABLE IF NOT EXISTS public.cards (
+	id UUID PRIMARY KEY,
+	name TEXT NOT NULL,
+	set_code TEXT NOT NULL,
+	collector_number TEXT NOT NULL,
+	rarity TEXT NOT NULL,
+	cmc NUMERIC NOT NULL,
+	type_line TEXT NOT NULL,
+	mana_cost TEXT,
+	color_identity TEXT[],
+	colors TEXT[],
+	image_uris JSONB,
+	raw_card JSONB,
+	_id SERIAL,
+	_created_at TIMESTAMP DEFAULT NOW(),
+	_updated_at TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION public.trigger_set_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW._updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS set_timestamp ON public.cards;
+CREATE TRIGGER set_timestamp
+BEFORE UPDATE ON public.cards
+FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+ALTER TABLE public.cards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read games" ON public.cards FOR SELECT USING (true);
+CREATE POLICY "Service role can insert cards" ON public.cards FOR INSERT TO service_role WITH CHECK (true);
+CREATE POLICY "Service role can update cards" ON public.cards FOR UPDATE TO service_role USING (true) WITH CHECK (true);
 
 -- Create views
 DROP VIEW IF EXISTS public.players_and_commanders;
@@ -77,3 +110,16 @@ SELECT
 	count(DISTINCT player) AS players,
 	count(DISTINCT commander) AS commanders
 FROM public.players_and_commanders;
+
+DROP VIEW IF EXISTS public.available_commanders;
+CREATE OR REPLACE VIEW public.available_commanders WITH(security_invoker = on) AS
+SELECT DISTINCT ON (name)
+ name,
+ coalesce(nullif(array_to_string(color_identity, ''), ''), 'C') AS color_identity,
+ image_uris ->> 'small' AS image_uri
+FROM public.cards
+WHERE
+ type_line LIKE '%Creature'
+ OR type_line LIKE '%Vehicle'
+ OR type_line LIKE '%Station'
+ORDER BY name, _created_at DESC;
