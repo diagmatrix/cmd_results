@@ -29,19 +29,20 @@ export function GameForm({ onSuccess }: GameFormProps) {
   const [error, setError] = useState<string | null>(null);
   
   const [commanderSuggestions, setCommanderSuggestions] = useState<Suggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const suggestionRef = useRef<HTMLDivElement>(null);
+  const suggestionRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
+      if (activeRowIndex !== null && suggestionRefs.current[activeRowIndex] && !suggestionRefs.current[activeRowIndex]!.contains(event.target as Node)) {
+        setActiveRowIndex(null);
+        setCommanderSuggestions([]);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [activeRowIndex]);
 
   const playerNames = playerRows.map(r => r.player).filter(Boolean);
 
@@ -55,8 +56,9 @@ export function GameForm({ onSuccess }: GameFormProps) {
         clearTimeout(debounceTimer.current);
       }
 
+      setActiveRowIndex(index);
+
       if (value.length >= 3) {
-        setShowSuggestions(true);
         debounceTimer.current = setTimeout(async () => {
           const [previous, available] = await Promise.all([
             fetchPreviousCommanders(value, 3),
@@ -74,7 +76,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
         }, 300);
       } else {
         setCommanderSuggestions([]);
-        setShowSuggestions(false);
+        setActiveRowIndex(null);
       }
     }
   };
@@ -83,7 +85,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
     const newRows = [...playerRows];
     newRows[index] = { ...newRows[index], commander };
     setPlayerRows(newRows);
-    setShowSuggestions(false);
+    setActiveRowIndex(null);
     setCommanderSuggestions([]);
   };
 
@@ -153,7 +155,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
         </div>
         <div className="space-y-2">
           {playerRows.map((row, index) => (
-            <div key={index} className="grid grid-cols-2 gap-2 items-center" ref={index === 0 ? suggestionRef : undefined}>
+            <div key={index} className="grid grid-cols-2 gap-2 items-center" ref={(el) => { suggestionRefs.current[index] = el; }}>
               <input
                 type="text"
                 value={row.player}
@@ -171,7 +173,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
                   className="bg-gray-700 rounded px-3 py-2 w-full"
                   required
                 />
-                {showSuggestions && commanderSuggestions.length > 0 && index === 0 && (
+                {activeRowIndex === index && commanderSuggestions.length > 0 && (
                   <div className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-48 overflow-y-auto">
                     {commanderSuggestions.map((suggestion, i) => (
                       <button
