@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { GameForm } from './components/GameForm';
 import { GamesList } from './components/GamesList';
+import { GamesPage } from './components/GamesPage';
 import { StatsDisplay } from './components/StatsDisplay';
 import { type Game, type GameStats, type Stats } from './lib/model';
 import {
@@ -59,7 +61,7 @@ function App() {
     loadData();
   };
 
-if (loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="text-xl">Loading...</div>
@@ -69,30 +71,58 @@ if (loading) {
 
   return (
     <div className="main-content" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      <NavBar isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />
-      <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
-        <h1 className="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
-        
-        <StatsDisplay
-          players={players}
-          commanders={commanders}
-          combos={combos}
-          stats={stats}
-          isDark={isDark}
-        />
+      <NavBar 
+        isDark={isDark} 
+        onToggleTheme={() => setIsDark(!isDark)} 
+      />
+      <Routes>
+        <Route path="/" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
+            
+            <StatsDisplay
+              players={players}
+              commanders={commanders}
+              combos={combos}
+              stats={stats}
+              isDark={isDark}
+            />
 
-        <div className="grid lg:grid-cols-2 gap-6">
-          <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-            <h2 className="text-xl font-semibold mb-4">Add Game</h2>
-            <GameForm isDark={isDark} onSuccess={handleGameSuccess} />
+            <div className="grid lg:grid-cols-2 gap-6">
+              <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <h2 className="text-xl font-semibold mb-4">Add Game</h2>
+                <GameForm isDark={isDark} onSuccess={handleGameSuccess} />
+              </div>
+              
+              <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <h2 className="text-xl font-semibold mb-4">Recent Games</h2>
+                <GamesList games={games} isDark={isDark} />
+              </div>
+            </div>
           </div>
-          
-          <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-            <h2 className="text-xl font-semibold mb-4">Recent Games</h2>
-            <GamesList games={games} isDark={isDark} />
+        } />
+        <Route path="/games" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Games</h1>
+            <GamesPage isDark={isDark} />
           </div>
-        </div>
-      </div>
+        } />
+        <Route path="/commanders" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Commanders</h1>
+          </div>
+        } />
+        <Route path="/players" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Players</h1>
+          </div>
+        } />
+        <Route path="/stats" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Stats</h1>
+          </div>
+        } />
+      </Routes>
     </div>
   );
 }
