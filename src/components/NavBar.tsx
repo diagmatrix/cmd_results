@@ -1,17 +1,18 @@
+import { Link, useLocation } from 'react-router-dom';
+
 interface NavBarProps {
-  currentPage?: string;
   isDark?: boolean;
-  onNavigate?: (page: string) => void;
   onToggleTheme?: () => void;
 }
 
-export function NavBar({ currentPage = 'home', isDark = false, onNavigate, onToggleTheme }: NavBarProps) {
+export function NavBar({ isDark = false, onToggleTheme }: NavBarProps) {
+  const location = useLocation();
   const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'games', label: 'Games' },
-    { id: 'commanders', label: 'Commanders' },
-    { id: 'players', label: 'Players' },
-    { id: 'stats', label: 'Stats' },
+    { path: '/', label: 'Home' },
+    { path: '/games', label: 'Games' },
+    { path: '/commanders', label: 'Commanders' },
+    { path: '/players', label: 'Players' },
+    { path: '/stats', label: 'Stats' },
   ];
 
   return (
@@ -19,15 +20,15 @@ export function NavBar({ currentPage = 'home', isDark = false, onNavigate, onTog
       <div className="flex items-center justify-between h-16 w-full max-w-7xl mx-auto px-4">
         <div className="flex space-x-6">
           {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => onNavigate?.(item.id)}
+            <Link
+              key={item.path}
+              to={item.path}
               className={`font-bold text-lg sm:text-xl hover:text-gray-600 px-4 py-2 rounded transition ${
-                currentPage === item.id ? 'text-gray-100' : 'text-purple-300'
+                location.pathname === item.path ? 'text-gray-100' : 'text-purple-300'
               }`}
             >
               {item.label}
-            </button>
+            </Link>
           ))}
         </div>
         <button
