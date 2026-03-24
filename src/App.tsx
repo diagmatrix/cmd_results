@@ -3,10 +3,8 @@ import { NavBar } from './components/NavBar';
 import { GameForm } from './components/GameForm';
 import { GamesList } from './components/GamesList';
 import { StatsDisplay } from './components/StatsDisplay';
+import { type Game, type GameStats, type Stats } from './lib/model';
 import {
-  type Game,
-  type GameStats,
-  type Stats,
   fetchRecentGames,
   fetchPlayers,
   fetchCommanders,

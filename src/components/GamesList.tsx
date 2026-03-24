@@ -1,4 +1,4 @@
-import type { Game } from '../lib/supabase';
+import type { Game, PlayerData } from '../lib/model';
 import { escapeHtml } from '../lib/utils';
 
 interface GamesListProps {
@@ -24,7 +24,7 @@ export function GamesList({ games }: GamesListProps) {
             </span>
           </div>
           <div className="text-sm text-gray-300 mt-2 space-y-1">
-            {game.player_data.map((p, i) => (
+            {game.player_data.map((p: PlayerData, i: number) => (
               <div key={i} className="flex justify-between">
                 <span>
                   {escapeHtml(p.player)}
