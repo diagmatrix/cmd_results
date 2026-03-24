@@ -52,8 +52,8 @@ export function GameForm({ onSuccess }: GameFormProps) {
       return;
     }
 
-    if (!winner || !startingPlayer) {
-      setError('Please select winner and starting player');
+    if (!winner) {
+      setError('Please select winner');
       return;
     }
 
@@ -159,7 +159,6 @@ export function GameForm({ onSuccess }: GameFormProps) {
             value={startingPlayer}
             onChange={(e) => setStartingPlayer(e.target.value)}
             className="w-full bg-gray-700 rounded px-3 py-2"
-            required
           >
             <option value="">Select...</option>
             {playerNames.map(n => (
