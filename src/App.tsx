@@ -9,7 +9,7 @@ import { type Game, type GameStats, type Stats } from './lib/model';
 import {
   fetchRecentGames,
   fetchPlayers,
-  fetchCommanders,
+  fetchCommanderStats,
   fetchCombos,
   fetchStats
 } from './lib/supabase';
@@ -37,7 +37,7 @@ function App() {
       const [gamesData, playersData, commandersData, combosData, statsData] = await Promise.all([
         fetchRecentGames(10),
         fetchPlayers(8),
-        fetchCommanders(8),
+        fetchCommanderStats(8),
         fetchCombos(8),
         fetchStats()
       ]);
