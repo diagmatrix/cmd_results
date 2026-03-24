@@ -42,10 +42,10 @@ export async function fetchPlayers(limit: number = 8): Promise<GameStats[]> {
   ));
 }
 
-export async function fetchCommanders(limit: number = 8): Promise<GameStats[]> {
+export async function fetchCommanderStats(limit: number = 8): Promise<GameStats[]> {
   const { data: commanders, error } = await supabase
-    .from('commanders')
-    .select('*')
+    .from('commander_stats')
+    .select('commander, games_played, games_won, games_started, games_won_and_started')
     .order('games_played', { ascending: false })
     .limit(limit);
 
