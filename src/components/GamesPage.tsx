@@ -33,6 +33,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
   });
   const [pageSize, setPageSize] = useState<25 | 50>(25);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAddGameOpen, setIsAddGameOpen] = useState(false);
 
   const loadGames = useCallback(async () => {
     setLoading(true);
@@ -229,8 +230,34 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
           >
             Clear
           </button>
+          <button
+            onClick={() => setIsAddGameOpen(true)}
+            className="px-4 py-2 rounded text-sm font-semibold"
+            style={{ backgroundColor: '#2563eb', color: '#ffffff' }}
+          >
+            Add Game
+          </button>
         </div>
       </div>
+
+      {isAddGameOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setIsAddGameOpen(false)} />
+          <div className="relative rounded-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Add Game</h2>
+              <button
+                onClick={() => setIsAddGameOpen(false)}
+                className="text-2xl leading-none"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                ×
+              </button>
+            </div>
+            <GameForm isDark={isDark} onSuccess={() => { handleGameAdded(); setIsAddGameOpen(false); }} />
+          </div>
+        </div>
+      )}
 
       <div className="rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         <div className="overflow-x-auto">
@@ -331,11 +358,6 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
             Next
           </button>
         </div>
-      </div>
-
-      <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-        <h2 className="text-xl font-semibold mb-4">Add Game</h2>
-        <GameForm isDark={isDark} onSuccess={handleGameAdded} />
       </div>
     </div>
   );
