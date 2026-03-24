@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.cards (
 	rarity TEXT NOT NULL,
 	cmc NUMERIC NOT NULL,
 	type_line TEXT NOT NULL,
+	released_at DATE NOT NULL,
 	mana_cost TEXT,
 	color_identity TEXT[],
 	colors TEXT[],
