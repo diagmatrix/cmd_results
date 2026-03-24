@@ -60,20 +60,20 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-6 mb-8">
-        <div className="bg-gray-800 rounded-lg p-4">
+      <div className="grid lg:grid-cols-8 gap-6 mb-8">
+        <div className="bg-gray-800 rounded-lg p-4 col-span-2">
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
           <div className="grid grid-cols-2 gap-2">
             {players.map(renderPlayerStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 col-span-2">
+        <div className="bg-gray-800 rounded-lg p-4 col-span-3">
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Top commanders by games played</h2>
           <div className="grid grid-cols-2 gap-2">
             {commanders.map(renderCommanderStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 col-span-2">
+        <div className="bg-gray-800 rounded-lg p-4 col-span-3">
           <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Top player + commander by games played</h2>
           <div className="grid grid-cols-2 gap-2">
             {combos.map(renderComboStatCard)}

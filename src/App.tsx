@@ -63,9 +63,9 @@ function App() {
   }
 
   return (
-    <div className="main-content p-4 md:p-6">
+    <div className="main-content">
       <NavBar />
-      <div className="max-w-[90rem] mx-auto">
+      <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
         <h1 className="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
         
         <StatsDisplay
