@@ -155,9 +155,7 @@ async function fetchData() {
 
 ## Data Classes (`src/lib/supabase.ts`)
 
-- `Player` - player, games, wins, started, startedWon + winrate()
-- `Commander` - commander, games, wins, started, startedWon + winrate()
-- `PlayerCommander` - player, commander, games, wins, started, startedWon + winrate()
+- `GameStats` - Unified class for players, commanders, and combos. Properties: player?, commander?, games, wins, started, startedWon, uniqueCommanders?. Methods: `winrate()`, `getType()` returns `'player' | 'commander' | 'combo'`
 - `Stats` - games, players, commanders
 
 ## Database Schema

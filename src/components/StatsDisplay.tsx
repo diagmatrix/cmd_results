@@ -1,19 +1,19 @@
-import { type Player, type Commander, type PlayerCommander, type Stats, Stats as StatsClass } from '../lib/supabase';
+import { type GameStats, Stats } from '../lib/supabase';
 import { escapeHtml, formatPartners } from '../lib/utils';
 
 interface StatsDisplayProps {
-  players: Player[];
-  commanders: Commander[];
-  combos: PlayerCommander[];
+  players: GameStats[];
+  commanders: GameStats[];
+  combos: GameStats[];
   stats: Stats | null;
 }
 
 export function StatsDisplay({ players, commanders, combos, stats }: StatsDisplayProps) {
-  const safeStats = stats || new StatsClass(0, 0, 0);
+  const safeStats = stats || new Stats(0, 0, 0);
 
-  const renderPlayerStatCard = (player: Player) => (
+  const renderPlayerStatCard = (player: GameStats) => (
     <div key={player.player} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold">{escapeHtml(player.player)}</div>
+      <div className="font-semibold">{escapeHtml(player.player!)}</div>
       <div className="text-sm text-purple-300">{player.uniqueCommanders} unique commanders</div>
       <div className="text-2xl font-bold">{player.wins}/{player.games}</div>
       <div className="text-sm text-gray-400">{player.winrate()}% win rate</div>
@@ -23,9 +23,9 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
     </div>
   );
 
-  const renderCommanderStatCard = (commander: Commander) => (
+  const renderCommanderStatCard = (commander: GameStats) => (
     <div key={commander.commander} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(commander.commander))}</div>
+      <div className="font-semibold text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(commander.commander!))}</div>
       <div className="text-2xl font-bold">{commander.wins}/{commander.games}</div>
       <div className="text-sm text-gray-400">{commander.winrate()}% win rate</div>
       <div className="text-xs text-yellow-400 mt-1">
@@ -34,10 +34,10 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
     </div>
   );
 
-  const renderComboStatCard = (combo: PlayerCommander) => (
+  const renderComboStatCard = (combo: GameStats) => (
     <div key={`${combo.player}-${combo.commander}`} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold">{escapeHtml(combo.player)}</div>
-      <div className="text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(combo.commander))}</div>
+      <div className="font-semibold">{escapeHtml(combo.player!)}</div>
+      <div className="text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(combo.commander!))}</div>
       <div className="text-2xl font-bold">{combo.wins}/{combo.games}</div>
       <div className="text-sm text-gray-400">{combo.winrate()}% win rate</div>
     </div>
