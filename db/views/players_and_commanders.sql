@@ -5,7 +5,8 @@ WITH player_commander AS (
 		id AS game_id,
 		jsonb_array_elements(player_data) AS player_commander,
 		winner,
-		starting_player
+		starting_player,
+		game_date
 	FROM public.raw_games
 )
 SELECT
@@ -13,5 +14,6 @@ SELECT
 	player_commander ->> 'player' AS player,
 	player_commander ->> 'commander' AS commander,
 	winner,
-	starting_player
+	starting_player,
+	game_date
 FROM player_commander;
