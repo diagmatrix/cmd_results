@@ -1,2 +1,0 @@
-export const SUPABASE_URL = 'https://gwtgnlcrqvbzoghgnkzf.supabase.co';
-export const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3dGdubGNycXZiem9naGdua3pmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MTgwNjQsImV4cCI6MjA4OTQ5NDA2NH0.OF64gtmFCK6E6FeXMa_zFniuvuOB1xEfFfMU0fAIPFI';
