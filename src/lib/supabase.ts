@@ -1,63 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config';
+import { type Game, GameStats, Stats, type PlayerData, type AvailableCommander } from './model.ts';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-export interface PlayerData {
-  player: string;
-  commander: string;
-}
-
-export interface Game {
-  id: string;
-  game_date: string;
-  player_data: PlayerData[];
-  winner: string;
-  starting_player: string;
-  created_at: string;
-}
-
-export class GameStats {
-  player?: string;
-  commander?: string;
-  games: number;
-  wins: number;
-  started: number;
-  startedWon: number;
-  uniqueCommanders?: number;
-
-  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number) {
-    this.player = player;
-    this.commander = commander;
-    this.games = games;
-    this.wins = wins;
-    this.started = started;
-    this.startedWon = startedWon;
-    this.uniqueCommanders = uniqueCommanders;
-  }
-
-  winrate(): string {
-    return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
-  }
-
-  getType(): 'player' | 'commander' | 'combo' {
-    if (this.player && this.commander) return 'combo';
-    if (this.player) return 'player';
-    return 'commander';
-  }
-}
-
-export class Stats {
-  games: number;
-  players: number;
-  commanders: number;
-
-  constructor(games: number, players: number, commanders: number) {
-    this.games = games;
-    this.players = players;
-    this.commanders = commanders;
-  }
-}
 
 export async function fetchRecentGames(limit: number = 10): Promise<Game[]> {
   const { data: games, error } = await supabase
@@ -173,7 +118,7 @@ export interface GameFormData {
   playerData: PlayerData[];
   winner: string;
   startingPlayer: string;
-  createdAt: string;
+  gameDate: string;
 }
 
 export async function insertGame(gameData: GameFormData): Promise<{ error: Error | null }> {
@@ -181,8 +126,38 @@ export async function insertGame(gameData: GameFormData): Promise<{ error: Error
     player_data: gameData.playerData,
     winner: gameData.winner,
     starting_player: gameData.startingPlayer,
-    created_at: gameData.createdAt
+    game_date: gameData.gameDate
   }]);
 
   return { error };
+}
+
+export async function fetchAvailableCommanders(searchTerm: string, limit: number = 5): Promise<AvailableCommander[]> {
+  const { data, error } = await supabase
+    .from('available_commanders')
+    .select('name, color_identity, image_uri')
+    .ilike('name', `%${searchTerm}%`)
+    .limit(limit);
+
+  if (error) {
+    console.error('Error loading available commanders:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+export async function fetchPreviousCommanders(searchTerm: string, limit: number = 5): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('commanders')
+    .select('commander')
+    .ilike('commander', `%${searchTerm}%`)
+    .limit(limit);
+
+  if (error) {
+    console.error('Error loading previous commanders:', error);
+    return [];
+  }
+
+  return (data || []).map(c => c.commander);
 }

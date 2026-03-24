@@ -6,7 +6,7 @@ SELECT DISTINCT ON (name)
  image_uris ->> 'small' AS image_uri
 FROM public.cards
 WHERE
- type_line LIKE '%Creature'
- OR type_line LIKE '%Vehicle'
- OR type_line LIKE '%Station'
+ type_line ILIKE '%Creature%'
+ OR type_line ILIKE '%Vehicle%'
+ OR type_line ILIKE '%Station%'
 ORDER BY name, _created_at DESC;

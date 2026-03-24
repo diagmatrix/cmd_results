@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { insertGame, type GameFormData } from '../lib/supabase';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { insertGame, fetchAvailableCommanders, fetchPreviousCommanders, type GameFormData } from '../lib/supabase';
 import { escapeHtml } from '../lib/utils';
 
 interface PlayerRow {
@@ -13,6 +13,11 @@ interface GameFormProps {
 
 const PLAYER_COUNT = 3;
 
+interface Suggestion {
+  type: 'previous' | 'available';
+  name: string;
+}
+
 export function GameForm({ onSuccess }: GameFormProps) {
   const [playerRows, setPlayerRows] = useState<PlayerRow[]>(
     Array(PLAYER_COUNT).fill({ player: '', commander: '' })
@@ -22,6 +27,21 @@ export function GameForm({ onSuccess }: GameFormProps) {
   const [startingPlayer, setStartingPlayer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const [commanderSuggestions, setCommanderSuggestions] = useState<Suggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suggestionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const playerNames = playerRows.map(r => r.player).filter(Boolean);
 
@@ -29,6 +49,42 @@ export function GameForm({ onSuccess }: GameFormProps) {
     const newRows = [...playerRows];
     newRows[index] = { ...newRows[index], [field]: value };
     setPlayerRows(newRows);
+
+    if (field === 'commander') {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      if (value.length >= 3) {
+        setShowSuggestions(true);
+        debounceTimer.current = setTimeout(async () => {
+          const [previous, available] = await Promise.all([
+            fetchPreviousCommanders(value, 3),
+            fetchAvailableCommanders(value, 5)
+          ]);
+
+          const suggestions: Suggestion[] = [
+            ...previous.map(name => ({ type: 'previous' as const, name })),
+            ...available
+              .filter(ac => !previous.includes(ac.name))
+              .map(ac => ({ type: 'available' as const, name: ac.name }))
+          ];
+
+          setCommanderSuggestions(suggestions.slice(0, 5));
+        }, 300);
+      } else {
+        setCommanderSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }
+  };
+
+  const selectCommander = (index: number, commander: string) => {
+    const newRows = [...playerRows];
+    newRows[index] = { ...newRows[index], commander };
+    setPlayerRows(newRows);
+    setShowSuggestions(false);
+    setCommanderSuggestions([]);
   };
 
   const handleAddPlayer = () => {
@@ -63,7 +119,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
       playerData: validPlayers,
       winner,
       startingPlayer,
-      createdAt: gameDate
+      gameDate: gameDate
     };
 
     const { error: insertError } = await insertGame(gameData);
@@ -97,7 +153,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
         </div>
         <div className="space-y-2">
           {playerRows.map((row, index) => (
-            <div key={index} className="grid grid-cols-2 gap-2 items-center">
+            <div key={index} className="grid grid-cols-2 gap-2 items-center" ref={index === 0 ? suggestionRef : undefined}>
               <input
                 type="text"
                 value={row.player}
@@ -106,14 +162,31 @@ export function GameForm({ onSuccess }: GameFormProps) {
                 className="bg-gray-700 rounded px-3 py-2"
                 required
               />
-              <input
-                type="text"
-                value={row.commander}
-                onChange={(e) => handlePlayerChange(index, 'commander', e.target.value)}
-                placeholder="Commander"
-                className="bg-gray-700 rounded px-3 py-2"
-                required
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={row.commander}
+                  onChange={(e) => handlePlayerChange(index, 'commander', e.target.value)}
+                  placeholder="Commander"
+                  className="bg-gray-700 rounded px-3 py-2 w-full"
+                  required
+                />
+                {showSuggestions && commanderSuggestions.length > 0 && index === 0 && (
+                  <div className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-48 overflow-y-auto">
+                    {commanderSuggestions.map((suggestion, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => selectCommander(index, suggestion.name)}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-600 text-sm"
+                      >
+                        {suggestion.type === 'previous' && <span className="text-yellow-400 mr-2">★</span>}
+                        {escapeHtml(suggestion.name)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               {index >= 2 && (
                 <button
                   type="button"
@@ -172,13 +245,21 @@ export function GameForm({ onSuccess }: GameFormProps) {
         <div className="text-red-400 text-sm">{error}</div>
       )}
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold disabled:opacity-50"
-      >
-        {isSubmitting ? 'Adding...' : 'Add Game'}
-      </button>
+      <div className="flex items-center justify-center gap-2">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold disabled:opacity-50 flex-1"
+        >
+          {isSubmitting ? 'Adding...' : 'Add Game'}
+        </button>
+        <div className="relative group">
+          <span className="bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-gray-400 cursor-help text-sm">?</span>
+          <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-gray-700 rounded text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            For partner commanders, use | to separate (e.g., "Rebbec, Architect of Ascension | Vial Smasher the Fierce")
+          </div>
+        </div>
+      </div>
     </form>
   );
 }
