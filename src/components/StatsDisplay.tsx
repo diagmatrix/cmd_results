@@ -1,4 +1,4 @@
-import { type GameStats, Stats } from '../lib/supabase';
+import { type GameStats, Stats } from '../lib/model';
 import { escapeHtml, formatPartners } from '../lib/utils';
 
 interface StatsDisplayProps {
