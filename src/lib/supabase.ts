@@ -23,13 +23,15 @@ export class Player {
   wins: number;
   started: number;
   startedWon: number;
+  uniqueCommanders: number;
 
-  constructor(player: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number) {
+  constructor(player: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, unique_commanders: number = 0) {
     this.player = player;
     this.games = games_played;
     this.wins = games_won;
     this.started = games_started;
     this.startedWon = games_won_and_started;
+    this.uniqueCommanders = unique_commanders;
   }
 
   winrate(): string {
@@ -123,7 +125,8 @@ export async function fetchPlayers(limit: number = 8): Promise<Player[]> {
     player.games_played,
     player.games_won,
     player.games_started,
-    player.games_won_and_started
+    player.games_won_and_started,
+    player.unique_commanders
   ));
 }
 
