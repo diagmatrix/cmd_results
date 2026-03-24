@@ -144,7 +144,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <div className="flex justify-between items-center mb-2">
-          <label className="text-sm">Players & Commanders</label>
+          <label className="text-sm text-gray-300">Players & Commanders</label>
           <button
             type="button"
             onClick={handleAddPlayer}
@@ -161,7 +161,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
                 value={row.player}
                 onChange={(e) => handlePlayerChange(index, 'player', e.target.value)}
                 placeholder={`Player ${index + 1}`}
-                className="bg-gray-700 rounded px-3 py-2"
+                className="bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
                 required
               />
               <div className="relative">
@@ -170,7 +170,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
                   value={row.commander}
                   onChange={(e) => handlePlayerChange(index, 'commander', e.target.value)}
                   placeholder="Commander"
-                  className="bg-gray-700 rounded px-3 py-2 w-full"
+                  className="bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2 w-full"
                   required
                 />
                 {activeRowIndex === index && commanderSuggestions.length > 0 && (
@@ -180,7 +180,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
                         key={i}
                         type="button"
                         onClick={() => selectCommander(index, suggestion.name)}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-600 text-sm"
+                        className="w-full text-left px-3 py-2 hover:bg-gray-600 text-gray-100 text-sm"
                       >
                         {suggestion.type === 'previous' && <span className="text-yellow-400 mr-2">★</span>}
                         {escapeHtml(suggestion.name)}
@@ -205,21 +205,21 @@ export function GameForm({ onSuccess }: GameFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm mb-1">Date</label>
+          <label className="block text-sm mb-1 text-gray-300">Date</label>
           <input
             type="date"
             value={gameDate}
             onChange={(e) => setGameDate(e.target.value)}
-            className="w-full bg-gray-700 rounded px-3 py-2"
+            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
             required
           />
         </div>
         <div>
-          <label className="block text-sm mb-1">Winner</label>
+          <label className="block text-sm mb-1 text-gray-300">Winner</label>
           <select
             value={winner}
             onChange={(e) => setWinner(e.target.value)}
-            className="w-full bg-gray-700 rounded px-3 py-2"
+            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
             required
           >
             <option value="">Select...</option>
@@ -229,11 +229,11 @@ export function GameForm({ onSuccess }: GameFormProps) {
           </select>
         </div>
         <div>
-          <label className="block text-sm mb-1">Starting Player</label>
+          <label className="block text-sm mb-1 text-gray-300">Starting Player</label>
           <select
             value={startingPlayer}
             onChange={(e) => setStartingPlayer(e.target.value)}
-            className="w-full bg-gray-700 rounded px-3 py-2"
+            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
           >
             <option value="">Select...</option>
             {playerNames.map(n => (
@@ -251,13 +251,13 @@ export function GameForm({ onSuccess }: GameFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="bg-blue-600 hover:bg-blue-700 py-2 rounded font-semibold disabled:opacity-50 flex-1"
+          className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold disabled:opacity-50 flex-1"
         >
           {isSubmitting ? 'Adding...' : 'Add Game'}
         </button>
         <div className="relative group">
-          <span className="bg-gray-700 rounded-full w-6 h-6 flex items-center justify-center text-gray-400 cursor-help text-sm">?</span>
-          <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-gray-700 rounded text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="bg-gray-700 text-gray-400 rounded-full w-6 h-6 flex items-center justify-center cursor-help text-sm">?</span>
+          <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-gray-700 text-gray-300 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             For partner commanders, use | to separate (e.g., "Rebbec, Architect of Ascension | Vial Smasher the Fierce")
           </div>
         </div>

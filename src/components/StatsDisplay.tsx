@@ -12,8 +12,8 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
   const safeStats = stats || new Stats(0, 0, 0);
 
   const renderPlayerStatCard = (player: GameStats) => (
-    <div key={player.player} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold">{escapeHtml(player.player!)}</div>
+    <div key={player.player} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
+      <div className="font-semibold text-gray-100">{escapeHtml(player.player!)}</div>
       <div className="text-sm text-purple-300">{player.uniqueCommanders} unique commanders</div>
       <div className="text-2xl font-bold">{player.wins}/{player.games}</div>
       <div className="text-sm text-gray-400">{player.winrate()}% win rate</div>
@@ -24,7 +24,7 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
   );
 
   const renderCommanderStatCard = (commander: GameStats) => (
-    <div key={commander.commander} className="bg-gray-700 rounded p-3">
+    <div key={commander.commander} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
       <div className="font-semibold text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(commander.commander!))}</div>
       <div className="text-2xl font-bold">{commander.wins}/{commander.games}</div>
       <div className="text-sm text-gray-400">{commander.winrate()}% win rate</div>
@@ -35,8 +35,8 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
   );
 
   const renderComboStatCard = (combo: GameStats) => (
-    <div key={`${combo.player}-${combo.commander}`} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold">{escapeHtml(combo.player!)}</div>
+    <div key={`${combo.player}-${combo.commander}`} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
+      <div className="font-semibold text-gray-100">{escapeHtml(combo.player!)}</div>
       <div className="text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(combo.commander!))}</div>
       <div className="text-2xl font-bold">{combo.wins}/{combo.games}</div>
       <div className="text-sm text-gray-400">{combo.winrate()}% win rate</div>
@@ -60,21 +60,21 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-8 gap-6 mb-8">
-        <div className="bg-gray-800 rounded-lg p-4 col-span-2">
+      <div className="grid lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-gray-800 rounded-lg p-4">
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
           <div className="grid grid-cols-2 gap-2">
             {players.map(renderPlayerStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 col-span-3">
-          <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Top commanders by games played</h2>
+        <div className="bg-gray-800 rounded-lg p-4">
+          <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Most played commanders</h2>
           <div className="grid grid-cols-2 gap-2">
             {commanders.map(renderCommanderStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 col-span-3">
-          <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Top player + commander by games played</h2>
+        <div className="bg-gray-800 rounded-lg p-4">
+          <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Most played commanders by players</h2>
           <div className="grid grid-cols-2 gap-2">
             {combos.map(renderComboStatCard)}
           </div>

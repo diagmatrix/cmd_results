@@ -13,15 +13,15 @@ export function NavBar({ currentPage = 'home', onNavigate }: NavBarProps) {
   ];
 
   return (
-    <nav className="bg-gray-800 border-b border-gray-700 mb-6 w-full">
-      <div className="flex items-center justify-start h-16 w-full max-w-7xl mx-auto px-4">
+    <nav className="bg-purple-700 mb-6 w-full">
+      <div className="flex items-center justify-center h-16 w-full max-w-7xl mx-auto px-4">
         <div className="flex space-x-6">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => onNavigate?.(item.id)}
-              className={`text-gray-100 font-bold text-lg sm:text-xl hover:text-blue-400 px-4 py-2 rounded transition ${
-                currentPage === item.id ? 'text-blue-400' : ''
+              className={`font-bold text-lg sm:text-xl hover:text-green-400 px-4 py-2 rounded transition ${
+                currentPage === item.id ? 'text-purple-300' : 'text-gray-100'
               }`}
             >
               {item.label}
