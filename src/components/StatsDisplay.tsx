@@ -1,5 +1,5 @@
 import { type Player, type Commander, type PlayerCommander, type Stats, Stats as StatsClass } from '../lib/supabase';
-import { escapeHtml } from '../lib/utils';
+import { escapeHtml, formatPartners } from '../lib/utils';
 
 interface StatsDisplayProps {
   players: Player[];
@@ -14,6 +14,7 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
   const renderPlayerStatCard = (player: Player) => (
     <div key={player.player} className="bg-gray-700 rounded p-3">
       <div className="font-semibold">{escapeHtml(player.player)}</div>
+      <div className="text-sm text-purple-300">{player.uniqueCommanders} unique commanders</div>
       <div className="text-2xl font-bold">{player.wins}/{player.games}</div>
       <div className="text-sm text-gray-400">{player.winrate()}% win rate</div>
       <div className="text-xs text-yellow-400 mt-1">
@@ -24,7 +25,7 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
 
   const renderCommanderStatCard = (commander: Commander) => (
     <div key={commander.commander} className="bg-gray-700 rounded p-3">
-      <div className="font-semibold text-purple-300">{escapeHtml(commander.commander)}</div>
+      <div className="font-semibold text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(commander.commander))}</div>
       <div className="text-2xl font-bold">{commander.wins}/{commander.games}</div>
       <div className="text-sm text-gray-400">{commander.winrate()}% win rate</div>
       <div className="text-xs text-yellow-400 mt-1">
@@ -36,7 +37,7 @@ export function StatsDisplay({ players, commanders, combos, stats }: StatsDispla
   const renderComboStatCard = (combo: PlayerCommander) => (
     <div key={`${combo.player}-${combo.commander}`} className="bg-gray-700 rounded p-3">
       <div className="font-semibold">{escapeHtml(combo.player)}</div>
-      <div className="text-purple-300">{escapeHtml(combo.commander)}</div>
+      <div className="text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(combo.commander))}</div>
       <div className="text-2xl font-bold">{combo.wins}/{combo.games}</div>
       <div className="text-sm text-gray-400">{combo.winrate()}% win rate</div>
     </div>
