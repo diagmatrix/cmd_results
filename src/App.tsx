@@ -5,9 +5,7 @@ import { GamesList } from './components/GamesList';
 import { StatsDisplay } from './components/StatsDisplay';
 import {
   type Game,
-  type Player,
-  type Commander,
-  type PlayerCommander,
+  type GameStats,
   type Stats,
   fetchRecentGames,
   fetchPlayers,
@@ -18,9 +16,9 @@ import {
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
-  const [players, setPlayers] = useState<Player[]>([]);
-  const [commanders, setCommanders] = useState<Commander[]>([]);
-  const [combos, setCombos] = useState<PlayerCommander[]>([]);
+  const [players, setPlayers] = useState<GameStats[]>([]);
+  const [commanders, setCommanders] = useState<GameStats[]>([]);
+  const [combos, setCombos] = useState<GameStats[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 

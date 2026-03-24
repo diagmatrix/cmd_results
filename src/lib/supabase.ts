@@ -17,67 +17,33 @@ export interface Game {
   created_at: string;
 }
 
-export class Player {
-  player: string;
+export class GameStats {
+  player?: string;
+  commander?: string;
   games: number;
   wins: number;
   started: number;
   startedWon: number;
-  uniqueCommanders: number;
+  uniqueCommanders?: number;
 
-  constructor(player: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, unique_commanders: number = 0) {
-    this.player = player;
-    this.games = games_played;
-    this.wins = games_won;
-    this.started = games_started;
-    this.startedWon = games_won_and_started;
-    this.uniqueCommanders = unique_commanders;
-  }
-
-  winrate(): string {
-    return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
-  }
-}
-
-export class Commander {
-  commander: string;
-  games: number;
-  wins: number;
-  started: number;
-  startedWon: number;
-
-  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number) {
-    this.commander = commander;
-    this.games = games_played;
-    this.wins = games_won;
-    this.started = games_started;
-    this.startedWon = games_won_and_started;
-  }
-
-  winrate(): string {
-    return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
-  }
-}
-
-export class PlayerCommander {
-  player: string;
-  commander: string;
-  games: number;
-  wins: number;
-  started: number;
-  startedWon: number;
-
-  constructor(player: string, commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number) {
+  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number) {
     this.player = player;
     this.commander = commander;
-    this.games = games_played;
-    this.wins = games_won;
-    this.started = games_started;
-    this.startedWon = games_won_and_started;
+    this.games = games;
+    this.wins = wins;
+    this.started = started;
+    this.startedWon = startedWon;
+    this.uniqueCommanders = uniqueCommanders;
   }
 
   winrate(): string {
     return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
+  }
+
+  getType(): 'player' | 'commander' | 'combo' {
+    if (this.player && this.commander) return 'combo';
+    if (this.player) return 'player';
+    return 'commander';
   }
 }
 
@@ -108,7 +74,7 @@ export async function fetchRecentGames(limit: number = 10): Promise<Game[]> {
   return games || [];
 }
 
-export async function fetchPlayers(limit: number = 8): Promise<Player[]> {
+export async function fetchPlayers(limit: number = 8): Promise<GameStats[]> {
   const { data: players, error } = await supabase
     .from('players')
     .select('*')
@@ -120,8 +86,9 @@ export async function fetchPlayers(limit: number = 8): Promise<Player[]> {
     return [];
   }
 
-  return (players || []).map(player => new Player(
+  return (players || []).map(player => new GameStats(
     player.player,
+    undefined,
     player.games_played,
     player.games_won,
     player.games_started,
@@ -130,7 +97,7 @@ export async function fetchPlayers(limit: number = 8): Promise<Player[]> {
   ));
 }
 
-export async function fetchCommanders(limit: number = 8): Promise<Commander[]> {
+export async function fetchCommanders(limit: number = 8): Promise<GameStats[]> {
   const { data: commanders, error } = await supabase
     .from('commanders')
     .select('*')
@@ -142,7 +109,8 @@ export async function fetchCommanders(limit: number = 8): Promise<Commander[]> {
     return [];
   }
 
-  return (commanders || []).map(commander => new Commander(
+  return (commanders || []).map(commander => new GameStats(
+    undefined,
     commander.commander,
     commander.games_played,
     commander.games_won,
@@ -151,7 +119,7 @@ export async function fetchCommanders(limit: number = 8): Promise<Commander[]> {
   ));
 }
 
-export async function fetchCombos(limit: number = 8): Promise<PlayerCommander[]> {
+export async function fetchCombos(limit: number = 8): Promise<GameStats[]> {
   const { data: combos, error } = await supabase
     .from('player_commander_combos')
     .select('*')
@@ -163,7 +131,7 @@ export async function fetchCombos(limit: number = 8): Promise<PlayerCommander[]>
     return [];
   }
 
-  return (combos || []).map(combo => new PlayerCommander(
+  return (combos || []).map(combo => new GameStats(
     combo.player,
     combo.commander,
     combo.games_played,
