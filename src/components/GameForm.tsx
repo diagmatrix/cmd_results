@@ -8,6 +8,7 @@ interface PlayerRow {
 }
 
 interface GameFormProps {
+  isDark?: boolean;
   onSuccess?: () => void;
 }
 
@@ -18,7 +19,7 @@ interface Suggestion {
   name: string;
 }
 
-export function GameForm({ onSuccess }: GameFormProps) {
+export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
   const [playerRows, setPlayerRows] = useState<PlayerRow[]>(
     Array(PLAYER_COUNT).fill({ player: '', commander: '' })
   );
@@ -144,7 +145,7 @@ export function GameForm({ onSuccess }: GameFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <div className="flex justify-between items-center mb-2">
-          <label className="text-sm text-gray-300">Players & Commanders</label>
+          <label className="text-sm" style={{ color: 'var(--text-secondary)' }}>Players & Commanders</label>
           <button
             type="button"
             onClick={handleAddPlayer}
@@ -161,7 +162,8 @@ export function GameForm({ onSuccess }: GameFormProps) {
                 value={row.player}
                 onChange={(e) => handlePlayerChange(index, 'player', e.target.value)}
                 placeholder={`Player ${index + 1}`}
-                className="bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+                className="border rounded px-3 py-2"
                 required
               />
               <div className="relative">
@@ -170,19 +172,21 @@ export function GameForm({ onSuccess }: GameFormProps) {
                   value={row.commander}
                   onChange={(e) => handlePlayerChange(index, 'commander', e.target.value)}
                   placeholder="Commander"
-                  className="bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2 w-full"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+                  className="border rounded px-3 py-2 w-full"
                   required
                 />
                 {activeRowIndex === index && commanderSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full bg-gray-700 border border-gray-600 rounded mt-1 max-h-48 overflow-y-auto">
+                  <div className="absolute z-10 w-full rounded mt-1 max-h-48 overflow-y-auto border" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}>
                     {commanderSuggestions.map((suggestion, i) => (
                       <button
                         key={i}
                         type="button"
                         onClick={() => selectCommander(index, suggestion.name)}
-                        className="w-full text-left px-3 py-2 hover:bg-gray-600 text-gray-100 text-sm"
+                        className="w-full text-left px-3 py-2 text-sm border-b last:border-b-0"
+                        style={{ color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#e5e7eb' }}
                       >
-                        {suggestion.type === 'previous' && <span className="text-yellow-400 mr-2">★</span>}
+                        {suggestion.type === 'previous' && <span className="mr-2" style={{ color: isDark ? '#fcd34d' : '#b45309' }}>★</span>}
                         {escapeHtml(suggestion.name)}
                       </button>
                     ))}
@@ -205,21 +209,23 @@ export function GameForm({ onSuccess }: GameFormProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm mb-1 text-gray-300">Date</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Date</label>
           <input
             type="date"
             value={gameDate}
             onChange={(e) => setGameDate(e.target.value)}
-            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+            className="w-full border rounded px-3 py-2"
             required
           />
         </div>
         <div>
-          <label className="block text-sm mb-1 text-gray-300">Winner</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Winner</label>
           <select
             value={winner}
             onChange={(e) => setWinner(e.target.value)}
-            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+            className="w-full border rounded px-3 py-2"
             required
           >
             <option value="">Select...</option>
@@ -229,11 +235,12 @@ export function GameForm({ onSuccess }: GameFormProps) {
           </select>
         </div>
         <div>
-          <label className="block text-sm mb-1 text-gray-300">Starting Player</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Starting Player</label>
           <select
             value={startingPlayer}
             onChange={(e) => setStartingPlayer(e.target.value)}
-            className="w-full bg-gray-700 text-gray-100 border border-gray-600 rounded px-3 py-2"
+            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+            className="w-full border rounded px-3 py-2"
           >
             <option value="">Select...</option>
             {playerNames.map(n => (
@@ -256,8 +263,8 @@ export function GameForm({ onSuccess }: GameFormProps) {
           {isSubmitting ? 'Adding...' : 'Add Game'}
         </button>
         <div className="relative group">
-          <span className="bg-gray-700 text-gray-400 rounded-full w-6 h-6 flex items-center justify-center cursor-help text-sm">?</span>
-          <div className="absolute right-0 bottom-full mb-2 w-56 p-2 bg-gray-700 text-gray-300 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <span className="rounded-full w-6 h-6 flex items-center justify-center cursor-help text-sm" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>?</span>
+          <div className="absolute right-0 bottom-full mb-2 w-56 p-2 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
             For partner commanders, use | to separate (e.g., "Rebbec, Architect of Ascension | Vial Smasher the Fierce")
           </div>
         </div>

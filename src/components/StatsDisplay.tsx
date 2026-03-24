@@ -6,74 +6,78 @@ interface StatsDisplayProps {
   commanders: GameStats[];
   combos: GameStats[];
   stats: Stats | null;
+  isDark?: boolean;
 }
 
-export function StatsDisplay({ players, commanders, combos, stats }: StatsDisplayProps) {
+export function StatsDisplay({ players, commanders, combos, stats, isDark = true }: StatsDisplayProps) {
   const safeStats = stats || new Stats(0, 0, 0);
 
+  const purpleColor = isDark ? '#c4b5fd' : '#7c3aed';
+  const yellowColor = isDark ? '#fcd34d' : '#b45309';
+
   const renderPlayerStatCard = (player: GameStats) => (
-    <div key={player.player} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
-      <div className="font-semibold text-gray-100">{escapeHtml(player.player!)}</div>
-      <div className="text-sm text-purple-300">{player.uniqueCommanders} unique commanders</div>
-      <div className="text-2xl font-bold">{player.wins}/{player.games}</div>
-      <div className="text-sm text-gray-400">{player.winrate()}% win rate</div>
-      <div className="text-xs text-yellow-400 mt-1">
+    <div key={player.player} className="rounded p-3 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+      <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{escapeHtml(player.player!)}</div>
+      <div className="text-sm" style={{ color: purpleColor }}>{player.uniqueCommanders} unique commanders</div>
+      <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{player.wins}/{player.games}</div>
+      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{player.winrate()}% win rate</div>
+      <div className="text-xs mt-1" style={{ color: yellowColor }}>
         {player.started > 0 ? `${player.startedWon}/${player.started} going first` : 'never gone first'}
       </div>
     </div>
   );
 
   const renderCommanderStatCard = (commander: GameStats) => (
-    <div key={commander.commander} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
-      <div className="font-semibold text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(commander.commander!))}</div>
-      <div className="text-2xl font-bold">{commander.wins}/{commander.games}</div>
-      <div className="text-sm text-gray-400">{commander.winrate()}% win rate</div>
-      <div className="text-xs text-yellow-400 mt-1">
+    <div key={commander.commander} className="rounded p-3 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+      <div className="font-semibold" style={{ whiteSpace: 'pre-line', color: purpleColor }}>{formatPartners(escapeHtml(commander.commander!))}</div>
+      <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{commander.wins}/{commander.games}</div>
+      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{commander.winrate()}% win rate</div>
+      <div className="text-xs mt-1" style={{ color: yellowColor }}>
         {commander.started > 0 ? `${commander.startedWon}/${commander.started} going first` : 'never gone first'}
       </div>
     </div>
   );
 
   const renderComboStatCard = (combo: GameStats) => (
-    <div key={`${combo.player}-${combo.commander}`} className="bg-gray-700 rounded p-3 flex flex-col justify-center">
-      <div className="font-semibold text-gray-100">{escapeHtml(combo.player!)}</div>
-      <div className="text-purple-300" style={{ whiteSpace: 'pre-line' }}>{formatPartners(escapeHtml(combo.commander!))}</div>
-      <div className="text-2xl font-bold">{combo.wins}/{combo.games}</div>
-      <div className="text-sm text-gray-400">{combo.winrate()}% win rate</div>
+    <div key={`${combo.player}-${combo.commander}`} className="rounded p-3 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+      <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{escapeHtml(combo.player!)}</div>
+      <div style={{ whiteSpace: 'pre-line', color: purpleColor }}>{formatPartners(escapeHtml(combo.commander!))}</div>
+      <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{combo.wins}/{combo.games}</div>
+      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{combo.winrate()}% win rate</div>
     </div>
   );
 
   return (
     <>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-gray-800 rounded-lg p-4 text-center">
-          <div className="text-4xl font-bold">{safeStats.games}</div>
-          <div className="text-gray-400">Total games recorded</div>
+        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Total games recorded</div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 text-center">
-          <div className="text-4xl font-bold">{safeStats.players}</div>
-          <div className="text-gray-400">Unique players</div>
+        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Unique players</div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4 text-center">
-          <div className="text-4xl font-bold">{safeStats.commanders}</div>
-          <div className="text-gray-400">Unique commanders</div>
+        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
+          <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gray-800 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
           <div className="grid grid-cols-2 gap-2">
             {players.map(renderPlayerStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Most played commanders</h2>
           <div className="grid grid-cols-2 gap-2">
             {commanders.map(renderCommanderStatCard)}
           </div>
         </div>
-        <div className="bg-gray-800 rounded-lg p-4">
+        <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Most played commanders by players</h2>
           <div className="grid grid-cols-2 gap-2">
             {combos.map(renderComboStatCard)}

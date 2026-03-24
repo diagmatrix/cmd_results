@@ -19,6 +19,15 @@ function App() {
   const [combos, setCombos] = useState<GameStats[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved ? saved === 'dark' : true;
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -50,17 +59,17 @@ function App() {
     loadData();
   };
 
-  if (loading) {
+if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
         <div className="text-xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="main-content">
-      <NavBar />
+    <div className="main-content" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <NavBar isDark={isDark} onToggleTheme={() => setIsDark(!isDark)} />
       <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
         <h1 className="text-3xl font-bold mb-6 text-center">Commander Game Tracker</h1>
         
@@ -69,17 +78,18 @@ function App() {
           commanders={commanders}
           combos={combos}
           stats={stats}
+          isDark={isDark}
         />
 
         <div className="grid lg:grid-cols-2 gap-6">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <h2 className="text-xl font-semibold mb-4">Add Game</h2>
-            <GameForm onSuccess={handleGameSuccess} />
+            <GameForm isDark={isDark} onSuccess={handleGameSuccess} />
           </div>
           
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
             <h2 className="text-xl font-semibold mb-4">Recent Games</h2>
-            <GamesList games={games} />
+            <GamesList games={games} isDark={isDark} />
           </div>
         </div>
       </div>
