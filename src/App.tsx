@@ -5,6 +5,7 @@ import { GameForm } from './components/GameForm';
 import { GamesList } from './components/GamesList';
 import { GamesPage } from './components/GamesPage';
 import { StatsDisplay } from './components/StatsDisplay';
+import { CommanderPage } from './components/CommandersPage';
 import { type Game, type GameStats, type Stats } from './lib/model';
 import {
   fetchRecentGames,
@@ -110,6 +111,7 @@ function App() {
         <Route path="/commanders" element={
           <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
             <h1 className="text-3xl font-bold mb-6 text-center">Commanders</h1>
+            <CommanderPage isDark={isDark} />
           </div>
         } />
         <Route path="/players" element={
