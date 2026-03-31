@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchAllCommanders, type CommanderData } from '../lib/supabase';
 import { escapeHtml, formatColorIdentity, formatPartners } from '../lib/utils';
+import { GamesTimeline } from './GamesTimeline';
 
 interface CommanderPageProps {
   isDark?: boolean;
@@ -175,79 +176,33 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
                 {selectedCommanderData.player_data?.length || 0} players: {selectedCommanderData.player_data?.map(p => p.player).join(', ')}
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <GamesTimeline gameDates={selectedCommanderData.game_dates} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
                 <div className="relative w-96 h-144 mx-auto overflow-hidden">
                   {selectedCommanderData.image_uris && selectedCommanderData.image_uris.length > 0 && (
-                    <>
-                      <img 
-                        src={selectedCommanderData.image_uris[0]} 
-                        alt={selectedCommanderData.commander} 
-                        className="absolute top-0 left-0 w-full h-full rounded z-0 object-contain"
+                    selectedCommanderData.image_uris.length === 1 ? (
+                      <img
+                        src={selectedCommanderData.image_uris[0]}
+                        alt={selectedCommanderData.commander}
+                        className="absolute top-0 left-0 w-82 rounded-lg z-0 object-contain"
                       />
-                      {selectedCommanderData.image_uris[1] && (
-                        <img 
-                          src={selectedCommanderData.image_uris[1]} 
+                    ) : (
+                      <>
+                        <img
+                          src={selectedCommanderData.image_uris[0]}
                           alt={selectedCommanderData.commander}
-                          className="absolute top-2 left-2 w-full h-full rounded hover:z-10 transition-z object-contain"
+                          className="absolute top-0 left-0 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
                         />
-                      )}
-                    </>
+                        <img
+                          src={selectedCommanderData.image_uris[1]}
+                          alt={selectedCommanderData.commander}
+                          className="absolute top-10 left-10 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
+                        />
+                      </>
+                    )
                   )}
                 </div>
-              </div>
-              <div className="relative" style={{ height: '36rem' }}>
-                {selectedCommanderData.game_dates && selectedCommanderData.game_dates.length > 0 && (
-                  <>
-                    <div 
-                      className="absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2" 
-                      style={{ backgroundColor: '#a855f7' }}
-                    />
-                    {selectedCommanderData.game_dates.map((gameDate, i) => {
-                      const isWin = gameDate.wins > 0;
-                      const size = Math.max(24, Math.min(44, 20 + gameDate.games * 4));
-                      const padding = 10;
-                      const count = selectedCommanderData.game_dates.length - 1 || 1;
-                      const percent = padding + (i / count) * (100 - padding * 2);
-                      return (
-                        <div 
-                          key={i} 
-                          className="absolute left-0 right-0 flex items-center justify-between px-2"
-                          style={{ top: `${percent}%`, transform: 'translateY(-50%)' }}
-                        >
-                          <div className="text-base pr-4" style={{ color: 'var(--text-secondary)', width: '45%', textAlign: 'right' }}>
-                            {new Date(gameDate.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                          </div>
-                          <div 
-                            className="rounded-full flex items-center justify-center border-2 z-10"
-                              style={{ 
-                                width: size, 
-                                height: size,
-                                borderColor: isWin ? '#22c55e' : '#ef4444',
-                                backgroundColor: isWin ? '#22c55e' : '#ef4444'
-                              }}
-                            >
-                              <span className="text-white text-sm font-bold">{gameDate.games}</span>
-                            </div>
-                            <div className="pl-4" style={{ width: '45%' }}>
-                              <span 
-                                className="text-sm px-2.5 py-1 rounded"
-                                style={{ 
-                                  backgroundColor: isWin ? '#22c55e20' : '#ef444420',
-                                  color: isWin ? '#22c55e' : '#ef4444'
-                                }}
-                              >
-                                {isWin ? 'W' : 'L'}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </>
-                  )}
-                  {(!selectedCommanderData.game_dates || selectedCommanderData.game_dates.length === 0) && (
-                    <div style={{ color: 'var(--text-secondary)' }}>No game dates recorded</div>
-                  )}
               </div>
               <div className="flex flex-col items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4" style={{ color: 'var(--text-secondary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
