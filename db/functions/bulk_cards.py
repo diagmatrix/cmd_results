@@ -1,15 +1,24 @@
 import requests
-import json
 import ijson
 from dotenv import load_dotenv
+from typing import Dict, List, Optional, TypedDict
 from os import environ as env
+import argparse
 
 load_dotenv()
 
 SCRYFALL_URL = "https://api.scryfall.com/bulk-data/default-cards"
 
-scryfall_session = requests.Session()
-scryfall_session.headers.update({"User-Agent": "cmd_results/0.1"})
+arg_parser = argparse.ArgumentParser(description="Bulk upsert cards from Scryfall")
+arg_parser.add_argument("--batch-size", "-s", type=int, default=None, help="Size of each batch to process")
+arg_parser.add_argument("--include", "-i", nargs="*", default=[], help="Card types to include (e.g. Planeswalker, Creature, Vehicle, Spacecraft, Background)")
+
+class CardBatches(TypedDict):
+    Planeswalker: List[Dict]
+    Creature: List[Dict]
+    Vehicle: List[Dict]
+    Spacecraft: List[Dict]
+    Background: List[Dict]
 
 def get_download_uri(session: requests.Session, url: str) -> str:
     response = session.get(url)
@@ -52,35 +61,40 @@ def upsert_batch(cards: list[dict]):
         json=mapped_cards
     )
     response.raise_for_status()
-    print(f"HTTP {response.status_code} - Upserted {len(mapped_cards)} cards")
+    action_message = 'UPSERTED' if response.status_code == 201 else 'NO CHANGES'
+    print(f"{action_message} (HTTP {response.status_code}) - Sent {len(mapped_cards)} cards")
 
-def process_cards(session: requests.Session, url: str):
+def process_cards(session: requests.Session, url: str, batch_size: Optional[int] = None) -> CardBatches:
     uri = get_download_uri(session, url)
     with session.get(uri, stream=True) as response:
+        print(f"Downloading card data from Scryfall...")
         response.raise_for_status()
         response.raw.decode_content = True
         
         objects = ijson.items(response.raw, "item")
-        batches: dict[str, list] = {
+        batches: CardBatches = {
             "Planeswalker": [],
             "Creature": [],
             "Vehicle": [],
-            "Spacecraft": []
+            "Spacecraft": [],
+            "Background": []
         }
         items: dict[str, list] = {
             "Planeswalker": [],
             "Creature": [],
             "Vehicle": [],
-            "Spacecraft": []
+            "Spacecraft": [],
+            "Background": []
         }
         non_legends = 0
         non_commanders = 0
         digital_cards = 0
         for item in objects:
             if item.get("digital", False):
-                print(f"Skipping digital card: {item.get('name', 'Unknown')}")
                 digital_cards += 1
                 continue
+            if "Background" in item.get("type_line", ""):
+                items["Background"].append(item)
             if "Planeswalker" in item.get("type_line", ""):
                 items["Planeswalker"].append(item)
             elif "Legendary" in item.get("type_line", ""):
@@ -91,14 +105,12 @@ def process_cards(session: requests.Session, url: str):
                 elif "Spacecraft" in item.get("type_line", ""):
                     items["Spacecraft"].append(item)
                 else:
-                    print(f"Skipping non-commander card: {item.get('name', 'Unknown')}")
                     non_commanders += 1
             else:
-                print(f"Skipping non-legendary card: {item.get('name', 'Unknown')}")
                 non_legends += 1
 
             for card_type, card_list in items.items():
-                if len(card_list) >= 1000:
+                if batch_size and len(card_list) >= batch_size:
                     batches[card_type].append(card_list)
                     items[card_type] = []
 
@@ -110,16 +122,28 @@ def process_cards(session: requests.Session, url: str):
         print(f"Skipped {non_commanders} non-commander cards")
         print(f"Skipped {digital_cards} digital cards")
 
-        for batch_type in batches.keys():
-            print(f"Processing {batch_type}: {len(batches[batch_type])} batches")
-            for batch in batches[batch_type]:
-                try:
-                    upsert_batch(batch)
-                except requests.exceptions.HTTPError as e:
-                    print(f"Error upserting batch: {e.response.text}")
-                except Exception as e:
-                    print(f"Unexpected error: {e}")
-        print("Finished processing cards")
+        return batches
+
+def upsert_cards(session: requests.Session, cards: CardBatches, include_types: Optional[List[str]] = None):
+    for batch_type in cards.keys():
+        if include_types and batch_type not in include_types:
+            continue
+        print(f"Processing {batch_type}: {len(cards[batch_type])} batches of size {len(cards[batch_type][0]) if cards[batch_type] else 0}")
+        for batch in cards[batch_type]:
+            try:
+                upsert_batch(batch)
+            except requests.exceptions.HTTPError as e:
+                print(f"Error upserting batch: {e.response.text}")
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+    print("Finished processing cards")
 
 if __name__ == "__main__":
-    process_cards(scryfall_session, SCRYFALL_URL)
+    args = arg_parser.parse_args()
+    print(f"Starting bulk card upsert with batch size {args.batch_size if args.batch_size else 'All'} and include types: {args.include if args.include else 'All'}")
+    scryfall_session = requests.Session()
+    scryfall_session.headers.update({"User-Agent": "cmd_results/0.1"})
+
+    cards_to_process = process_cards(scryfall_session, SCRYFALL_URL, batch_size=args.batch_size)
+    
+    upsert_cards(scryfall_session, cards_to_process, include_types=args.include)
