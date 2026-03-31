@@ -11,4 +11,5 @@ SELECT DISTINCT ON (name)
         (coalesce(raw_card ->> 'card_faces', '[]')::jsonb -> 1 ->> 'image_uris')::jsonb ->> 'large'
 END AS image_uri
 FROM public.cards
-ORDER BY name, released_at ASC NULLS LAST;
+WHERE set_code IS DISTINCT FROM 'sld'
+ORDER BY name, released_at ASC NULLS LAST, collector_number ASC;
