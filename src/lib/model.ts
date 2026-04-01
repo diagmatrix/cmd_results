@@ -3,6 +3,11 @@ export interface PlayerData {
   commander: string;
 }
 
+export interface CommanderName {
+  name: string;
+  has_been_played: boolean;
+}
+
 export interface AvailableCommander {
   name: string;
   color_identity: string;

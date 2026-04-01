@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { insertGame, fetchAvailableCommanders, fetchPreviousCommanders, type GameFormData } from '../lib/supabase';
+import { insertGame, type GameFormData, fetchCommanderNames } from '../lib/supabase';
 import { escapeHtml } from '../lib/utils';
+import type { CommanderName } from '../lib/model';
 
 interface PlayerRow {
   player: string;
@@ -14,11 +15,6 @@ interface GameFormProps {
 
 const PLAYER_COUNT = 3;
 
-interface Suggestion {
-  type: 'previous' | 'available';
-  name: string;
-}
-
 export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
   const [playerRows, setPlayerRows] = useState<PlayerRow[]>(
     Array(PLAYER_COUNT).fill({ player: '', commander: '' })
@@ -29,7 +25,7 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const [commanderSuggestions, setCommanderSuggestions] = useState<Suggestion[]>([]);
+  const [commanderSuggestions, setCommanderSuggestions] = useState<CommanderName[]>([]);
   const [activeRowIndex, setActiveRowIndex] = useState<number | null>(null);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suggestionRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -61,19 +57,9 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
 
       if (value.length >= 3) {
         debounceTimer.current = setTimeout(async () => {
-          const [previous, available] = await Promise.all([
-            fetchPreviousCommanders(value, 3),
-            fetchAvailableCommanders(value, 5)
-          ]);
+          const commanders: CommanderName[] = await fetchCommanderNames(value, 7);
 
-          const suggestions: Suggestion[] = [
-            ...previous.map(name => ({ type: 'previous' as const, name })),
-            ...available
-              .filter(ac => !previous.includes(ac.name))
-              .map(ac => ({ type: 'available' as const, name: ac.name }))
-          ];
-
-          setCommanderSuggestions(suggestions.slice(0, 5));
+          setCommanderSuggestions(commanders);
         }, 300);
       } else {
         setCommanderSuggestions([]);
@@ -186,7 +172,7 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
                         className="w-full text-left px-3 py-2 text-sm border-b last:border-b-0"
                         style={{ color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#e5e7eb' }}
                       >
-                        {suggestion.type === 'previous' && <span className="mr-2" style={{ color: isDark ? '#fcd34d' : '#b45309' }}>★</span>}
+                        {suggestion.has_been_played === true && <span className="mr-2" style={{ color: isDark ? '#fcd34d' : '#b45309' }}>★</span>}
                         {escapeHtml(suggestion.name)}
                       </button>
                     ))}
