@@ -23,6 +23,18 @@ export interface Game {
   created_at: string;
 }
 
+export interface CommanderData {
+  commander: string;
+  games_played: number;
+  games_won: number;
+  games_started: number;
+  games_won_and_started: number;
+  player_data: string[];
+  game_dates: { date: string; games: number; wins: number }[];
+  color_identity: string | null;
+  image_uris: string[] | null;
+}
+
 export class GameStats {
   player?: string;
   commander?: string;
