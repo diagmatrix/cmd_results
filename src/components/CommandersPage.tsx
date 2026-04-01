@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchAllCommanders, type CommanderData } from '../lib/supabase';
+import { fetchAllCommanders } from '../lib/supabase';
+import { type CommanderData } from '../lib/model';
 import { escapeHtml, formatColorIdentity, formatPartners } from '../lib/utils';
 import { GamesTimeline } from './GamesTimeline';
 
@@ -173,7 +174,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
                 {selectedCommanderData.games_played} games · {selectedCommanderData.games_won} wins ({((selectedCommanderData.games_won / selectedCommanderData.games_played) * 100).toFixed(0)}%)
               </span>
               <span style={{ color: '#fbbf24' }} className="text-base font-normal">
-                {selectedCommanderData.player_data?.length || 0} players: {selectedCommanderData.player_data?.map(p => p.player).join(', ')}
+                {selectedCommanderData.player_data?.length || 0} players: {selectedCommanderData.player_data.join(', ')}
               </span>
             </div>
             <GamesTimeline gameDates={selectedCommanderData.game_dates} />
