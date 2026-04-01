@@ -92,7 +92,12 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
 
     const validPlayers = playerRows.filter(p => p.player && p.commander);
     
-    if (validPlayers.length < 2) {
+    const trimmedPlayers = validPlayers.map(p => ({
+      player: p.player.trim(),
+      commander: p.commander.trim()
+    }));
+
+    if (trimmedPlayers.length < 2) {
       setError('Need at least 2 players with commanders');
       return;
     }
@@ -105,9 +110,9 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
     setIsSubmitting(true);
 
     const gameData: GameFormData = {
-      playerData: validPlayers,
-      winner,
-      startingPlayer,
+      playerData: trimmedPlayers,
+      winner: winner.trim(),
+      startingPlayer: startingPlayer.trim(),
       gameDate: gameDate
     };
 
