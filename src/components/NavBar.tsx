@@ -17,7 +17,7 @@ export function NavBar({ isDark = false, onToggleTheme }: NavBarProps) {
 
   return (
     <nav className="bg-purple-700 mb-6 w-full">
-      <div className="flex items-center justify-between h-16 w-full max-w-7xl mx-auto px-4">
+      <div className="flex items-center justify-start h-16 w-full max-w-9/10 mx-auto px-4">
         <div className="flex space-x-6">
           {navItems.map((item) => (
             <Link
@@ -33,7 +33,7 @@ export function NavBar({ isDark = false, onToggleTheme }: NavBarProps) {
         </div>
         <button
           onClick={onToggleTheme}
-          className="p-2 rounded-full hover:bg-purple-600 transition"
+          className="p-2 rounded-full hover:bg-purple-600 transition ml-auto"
           aria-label="Toggle theme"
         >
           {isDark ? (
