@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchAllCommanders } from '../lib/supabase';
-import { type CommanderData } from '../lib/model';
-import { escapeHtml, formatColorIdentity, formatPartners } from '../lib/utils';
+import { CommanderData } from '../lib/model';
+import { formatPartners } from '../lib/utils';
 import { GamesTimeline } from './GamesTimeline';
 
 interface CommanderPageProps {
@@ -34,7 +34,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
   const uniqueCount = commanders.length;
 
   const colorIdentityCounts = commanders.reduce((acc, c) => {
-    const colors = c.color_identity || 'C';
+    const colors = c.colorIdentity || 'C';
     acc[colors] = (acc[colors] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -42,22 +42,33 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
   const topColorIdentities = Object.entries(colorIdentityCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([colors, count]) => ({
-      colors,
-      ...formatColorIdentity(colors),
-      count
-    }));
+    .map(([colors, count]) => {
+      const dummyCommander = new CommanderData('', 0, 0, 0, 0, [], []);
+      dummyCommander.colorIdentity = colors;
+      return {
+        colors,
+        name: dummyCommander.colorIdentityName(),
+        count
+      };
+    });
 
   const topCommanders = commanders
     .slice(0, 5)
     .map(c => ({
       name: c.commander,
-      games: c.games_played
+      games: c.games
     }));
 
-  const renderSymbols = (colors: string | null) => {
-    const { symbols } = formatColorIdentity(colors);
-    return <span dangerouslySetInnerHTML={{ __html: symbols }} />;
+  const renderSymbols = (colors: string | null | undefined) => {
+    const dummyCommander = new CommanderData('', 0, 0, 0, 0, [], []);
+    dummyCommander.colorIdentity = colors || 'C';
+    return (
+      <span>
+        {dummyCommander.colorIdentitySymbolUrls().map((url, i) => (
+          <img key={i} src={url} alt="" aria-hidden="true" className="inline w-5 h-5 mr-0.5" />
+        ))}
+      </span>
+    );
   };
 
   const filteredCommanders = searchTerm
@@ -161,7 +172,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
         {selectedCommanderData && (
           <div className="mt-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
             <div className="font-semibold text-xl mb-6 flex items-center flex-wrap gap-4">
-              {renderSymbols(selectedCommanderData.color_identity)}
+              {renderSymbols(selectedCommanderData.colorIdentity)}
               <span className="text-purple-400">
                 {formatPartners(selectedCommander).split('\n').map((line, i, arr) => (
                   <span key={i}>
@@ -171,32 +182,32 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
                 ))}
               </span>
               <span style={{ color: 'var(--text-secondary)' }} className="text-base font-normal">
-                {selectedCommanderData.games_played} games · {selectedCommanderData.games_won} wins ({((selectedCommanderData.games_won / selectedCommanderData.games_played) * 100).toFixed(0)}%)
+                {selectedCommanderData.games} games · {selectedCommanderData.wins} wins ({selectedCommanderData.winrate()}%)
               </span>
               <span style={{ color: '#fbbf24' }} className="text-base font-normal">
                 {selectedCommanderData.players?.length || 0} players: {selectedCommanderData.players?.join(', ')}
               </span>
             </div>
-            <GamesTimeline gameDates={selectedCommanderData.game_dates} />
+            <GamesTimeline gameDates={selectedCommanderData.gameDates} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <div>
                 <div className="relative w-96 h-144 mx-auto overflow-hidden">
-                  {selectedCommanderData.image_uris && selectedCommanderData.image_uris.length > 0 && (
-                    selectedCommanderData.image_uris.length === 1 ? (
+                  {selectedCommanderData.imageUris && selectedCommanderData.imageUris.length > 0 && (
+                    selectedCommanderData.imageUris.length === 1 ? (
                       <img
-                        src={selectedCommanderData.image_uris[0]}
+                        src={selectedCommanderData.imageUris[0]}
                         alt={selectedCommanderData.commander}
                         className="absolute top-0 left-0 w-82 rounded-lg z-0 object-contain"
                       />
                     ) : (
                       <>
                         <img
-                          src={selectedCommanderData.image_uris[0]}
+                          src={selectedCommanderData.imageUris[0]}
                           alt={selectedCommanderData.commander}
                           className="absolute top-0 left-0 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
                         />
                         <img
-                          src={selectedCommanderData.image_uris[1]}
+                          src={selectedCommanderData.imageUris[1]}
                           alt={selectedCommanderData.commander}
                           className="absolute top-10 left-10 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
                         />
