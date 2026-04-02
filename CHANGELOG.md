@@ -10,5 +10,7 @@ All notable changes to the Commander Game Tracker will be documented in this fil
 - Add commander statistics sorted by games played and win rate
 - Add comprehensive games page with full game history
 - Add dedicated commanders page with color identity analysis
+- Add players and stats page with coming soon placeholder for extended statistics
+- Add player card background images for the active group players
+- Add clickable player cards that navigate to player detail view
 - Add dark/light theme toggle
-- Deploy to GitHub Pages

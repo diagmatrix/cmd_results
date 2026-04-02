@@ -6,6 +6,8 @@ import { GamesList } from './components/GamesList';
 import { GamesPage } from './components/GamesPage';
 import { StatsDisplay } from './components/StatsDisplay';
 import { CommanderPage } from './components/CommandersPage';
+import { PlayersPage } from './components/PlayersPage';
+import { StatsPage } from './components/StatsPage';
 import { ChangelogPage } from './components/ChangelogPage';
 import { Footer } from './components/Footer';
 import { type Game, type GameStats, type Stats } from './lib/model';
@@ -118,11 +120,13 @@ function App() {
         <Route path="/players" element={
           <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
             <h1 className="text-3xl font-bold mb-6 text-center">Players</h1>
+            <PlayersPage />
           </div>
         } />
         <Route path="/stats" element={
           <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
             <h1 className="text-3xl font-bold mb-6 text-center">Stats</h1>
+            <StatsPage />
           </div>
         } />
         <Route path="/changelog" element={

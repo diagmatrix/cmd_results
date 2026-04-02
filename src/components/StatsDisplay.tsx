@@ -21,6 +21,10 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
     navigate(`/commanders?commander=${encodeURIComponent(commanderName)}`);
   };
 
+  const handlePlayerClick = (playerName: string) => {
+    navigate(`/players?player=${encodeURIComponent(playerName)}`);
+  };
+
   const renderColorSymbols = (commander: GameStats) => {
     const urls = commander.colorIdentitySymbolUrls();
     return (
@@ -36,15 +40,21 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
     <button
       key={player.player}
       type="button"
+      onClick={() => handlePlayerClick(player.player!)}
       aria-label={`View details for ${player.player}`}
-      className="rounded p-3 flex flex-col justify-center text-left cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
-      style={{ backgroundColor: 'var(--bg-tertiary)' }}
+      className="rounded p-3 flex flex-col justify-center text-left cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 relative overflow-hidden"
+      style={{ 
+        backgroundColor: 'var(--bg-tertiary)',
+        backgroundImage: player.imageUri ? `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${player.imageUri})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
     >
-      <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{escapeHtml(player.player!)}</div>
-      <div className="text-sm" style={{ color: purpleColor }}>{player.uniqueCommanders} unique commanders</div>
-      <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{player.wins}/{player.games}</div>
-      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{player.winrate()}% win rate</div>
-      <div className="text-xs mt-1" style={{ color: yellowColor }}>
+      <div className="font-semibold" style={{ color: player.imageUri ? '#f9fafb' : 'var(--text-primary)' }}>{escapeHtml(player.player!)}</div>
+      <div className="text-sm" style={{ color: player.imageUri ? '#c4b5fd' : purpleColor }}>{player.uniqueCommanders} unique commanders</div>
+      <div className="text-2xl font-bold" style={{ color: player.imageUri ? '#f9fafb' : (isDark ? '#f9fafb' : '#111827') }}>{player.wins}/{player.games}</div>
+      <div className="text-sm" style={{ color: player.imageUri ? '#d1d5db' : 'var(--text-secondary)' }}>{player.winrate()}% win rate</div>
+      <div className="text-xs mt-1" style={{ color: player.imageUri ? '#fcd34d' : yellowColor }}>
         {player.started > 0 ? `${player.startedWon}/${player.started} going first` : 'never gone first'}
       </div>
     </button>
