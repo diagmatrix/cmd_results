@@ -34,7 +34,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
   const uniqueCount = commanders.length;
 
   const colorIdentityCounts = commanders.reduce((acc, c) => {
-    const colors = c.colorIdentity || 'C';
+    const colors = c.colorIdentity?.split('').sort().join('') || 'C';
     acc[colors] = (acc[colors] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
