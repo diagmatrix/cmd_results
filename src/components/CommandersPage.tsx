@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { fetchAllCommanders } from '../lib/supabase';
 import { CommanderData } from '../lib/model';
 import { formatPartners } from '../lib/utils';
@@ -14,6 +15,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
   const [selectedCommander, setSelectedCommander] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -27,9 +29,25 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
     }
   }, []);
 
+  const handleSelectCommander = useCallback((commander: string) => {
+    setSelectedCommander(commander);
+    setSearchTerm(commander);
+    setShowDropdown(false);
+  }, []);
+
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const commanderParam = searchParams.get('commander');
+    if (commanderParam && commanders.length > 0) {
+      const exists = commanders.some(c => c.commander === commanderParam);
+      if (exists) {
+        handleSelectCommander(commanderParam);
+      }
+    }
+  }, [searchParams, commanders, handleSelectCommander]);
 
   const uniqueCount = commanders.length;
 
@@ -78,12 +96,6 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
     : commanders.slice(0, 10);
 
   const selectedCommanderData = commanders.find(c => c.commander === selectedCommander);
-
-  const handleSelectCommander = (commander: string) => {
-    setSelectedCommander(commander);
-    setSearchTerm(commander);
-    setShowDropdown(false);
-  };
 
   if (loading) {
     return (

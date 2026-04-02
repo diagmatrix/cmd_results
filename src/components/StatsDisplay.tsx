@@ -1,5 +1,6 @@
 import { type GameStats, Stats } from '../lib/model';
 import { escapeHtml, formatPartners, getColorIdentityGradient } from '../lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface StatsDisplayProps {
   players: GameStats[];
@@ -11,9 +12,14 @@ interface StatsDisplayProps {
 
 export function StatsDisplay({ players, commandersByGames, commandersByWins, stats, isDark = true }: StatsDisplayProps) {
   const safeStats = stats || new Stats(0, 0, 0);
+  const navigate = useNavigate();
 
   const purpleColor = isDark ? '#c4b5fd' : '#7c3aed';
   const yellowColor = isDark ? '#fcd34d' : '#b45309';
+
+  const handleCommanderClick = (commanderName: string) => {
+    navigate(`/commanders?commander=${encodeURIComponent(commanderName)}`);
+  };
 
   const renderColorSymbols = (commander: GameStats) => {
     const urls = commander.colorIdentitySymbolUrls();
@@ -27,7 +33,13 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
   }
 
   const renderPlayerStatCard = (player: GameStats) => (
-    <div key={player.player} className="rounded p-3 flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+    <button
+      key={player.player}
+      type="button"
+      aria-label={`View details for ${player.player}`}
+      className="rounded p-3 flex flex-col justify-center text-left cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+      style={{ backgroundColor: 'var(--bg-tertiary)' }}
+    >
       <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{escapeHtml(player.player!)}</div>
       <div className="text-sm" style={{ color: purpleColor }}>{player.uniqueCommanders} unique commanders</div>
       <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{player.wins}/{player.games}</div>
@@ -35,11 +47,18 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
       <div className="text-xs mt-1" style={{ color: yellowColor }}>
         {player.started > 0 ? `${player.startedWon}/${player.started} going first` : 'never gone first'}
       </div>
-    </div>
+    </button>
   );
 
   const renderCommanderStatCard = (commander: GameStats) => (
-    <div key={commander.commander} className="rounded p-3 flex flex-col justify-center" style={{ background: getColorIdentityGradient(commander.colorIdentity, isDark) }}>
+    <button
+      key={commander.commander}
+      type="button"
+      onClick={() => handleCommanderClick(commander.commander!)}
+      aria-label={`View details for ${commander.commander}`}
+      className="rounded p-3 flex flex-col justify-center text-left cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+      style={{ background: getColorIdentityGradient(commander.colorIdentity, isDark) }}
+    >
       <div className="font-semibold" style={{ whiteSpace: 'pre-line', color: purpleColor }}>{formatPartners(escapeHtml(commander.commander!))}</div>
       {renderColorSymbols(commander)}
       <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{commander.wins}/{commander.games}</div>
@@ -47,7 +66,7 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
       <div className="text-xs mt-1" style={{ color: yellowColor }}>
         {commander.started > 0 ? `${commander.startedWon}/${commander.started} going first` : 'never gone first'}
       </div>
-    </div>
+    </button>
   );
 
   return (
