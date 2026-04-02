@@ -6,9 +6,9 @@ WITH commander_games AS (
 		jsonb_build_object(
 			'date', game_date,
 			'games', count(*),
-			'wins', sum(CASE WHEN won THEN 1 ELSE 0 END)
+			'wins', sum(CASE WHEN is_winner THEN 1 ELSE 0 END)
 		) AS games_played
-	FROM public.players_and_commanders
+	FROM public.games
 	GROUP BY game_date, commander
 ),
 games AS (
@@ -29,7 +29,6 @@ SELECT
     games_stats.*,
     games.game_dates,
     players.players,
-    commander_names.color_identity,
 	commander_names.image_uris
 FROM public.commander_stats games_stats
 INNER JOIN games 
