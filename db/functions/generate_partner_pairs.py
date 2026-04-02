@@ -93,13 +93,13 @@ def categorize_partners(partner_cards: List[AvailableCommander]) -> PartnerCateg
         if "Partner with" in card["keywords"]:
             categories['SPECIFIC'].append(card)
             print(f"Adding {card['name']} to SPECIFIC PARTNERS")
-        elif "Time Lord Doctor" in card["type_line"] or "Doctor's companion" in card["oracle_text"]:
+        elif "Time Lord Doctor" in card["type_line"] or "Doctor's companion" in (card.get("oracle_text") or ""):
             categories['DOCTOR_COMPANION'].append(card)
             print(f"Adding {card['name']} to DOCTOR WHO PARTNERS")
         elif "Background" in card["type_line"] or "Choose a background" in card["keywords"]:
             categories['BACKGROUND'].append(card)
             print(f"Adding {card['name']} to CHOOSE A BACKGROUND PARTNERS")
-        elif "Partner—Friends forever" in card["oracle_text"]:
+        elif "Partner—Friends forever" in (card.get("oracle_text") or ""):
             categories['FRIENDS_FOREVER'].append(card)
             print(f"Adding {card['name']} to FRIENDS FOREVER")
         else:
@@ -116,19 +116,26 @@ def parse_color_identity(color_identity_first: str, color_identity_second: str) 
     if color_identity_second in ("", "C"):
         return color_identity_first
     
-    return "".join(set("WUBRG") & set(color_identity_first + color_identity_second))
+    combined = set(color_identity_first + color_identity_second)
+    return "".join(c for c in "WUBRG" if c in combined)
 
 def process_specific_partners(cards: List[AvailableCommander], partner_type: str) -> List[PartnerPair]:
     pairs = []
     unpaired = {}
     for card in cards:
         if card["name"] in unpaired:
+            partner = unpaired[card["name"]]
+            # Canonicalize order by sorting UUIDs
+            if card["id"] < partner["id"]:
+                first, second = card, partner
+            else:
+                first, second = partner, card
             pairs.append({
-                "first_id": card["id"],
-                "second_id": unpaired[card["name"]]["id"],
-                "name": f"{card['name']} | {unpaired[card['name']]['name']}",
-                "color_identity": parse_color_identity(card["color_identity"], unpaired[card["name"]]["color_identity"]),
-                "image_uri": [card["image_uri"], unpaired[card["name"]]["image_uri"]],
+                "first_id": first["id"],
+                "second_id": second["id"],
+                "name": f"{first['name']} | {second['name']}",
+                "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
+                "image_uri": [first["image_uri"], second["image_uri"]],
                 "partner_type": partner_type
             })
             del unpaired[card["name"]]
@@ -151,12 +158,17 @@ def process_generic_partner(cards: List[AvailableCommander], partner_type: str) 
             if base_card["id"] == card["id"] or base_card["id"] + card["id"] in already_paired or card["id"] + base_card["id"] in already_paired:
                 continue
             else:
+                # Canonicalize order by sorting UUIDs
+                if card["id"] < base_card["id"]:
+                    first, second = card, base_card
+                else:
+                    first, second = base_card, card
                 pairs.append({
-                    "first_id": card["id"],
-                    "second_id": base_card["id"],
-                    "name": f"{card['name']} | {base_card['name']}",
-                    "color_identity": parse_color_identity(card["color_identity"], base_card["color_identity"]),
-                    "image_uri": [card["image_uri"], base_card["image_uri"]],
+                    "first_id": first["id"],
+                    "second_id": second["id"],
+                    "name": f"{first['name']} | {second['name']}",
+                    "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
+                    "image_uri": [first["image_uri"], second["image_uri"]],
                     "partner_type": partner_type
                 })
                 already_paired.add(card["id"] + base_card["id"])
@@ -170,12 +182,17 @@ def process_type_partner(cards: List[AvailableCommander], type_line: str, partne
     pairs = []
     for card in rest:
         for base_card in available_to_pair:
+            # Canonicalize order by sorting UUIDs
+            if card["id"] < base_card["id"]:
+                first, second = card, base_card
+            else:
+                first, second = base_card, card
             pairs.append({
-                "first_id": card["id"],
-                "second_id": base_card["id"],
-                "name": f"{card['name']} | {base_card['name']}",
-                "color_identity": parse_color_identity(card["color_identity"], base_card["color_identity"]),
-                "image_uri": [card["image_uri"], base_card["image_uri"]],
+                "first_id": first["id"],
+                "second_id": second["id"],
+                "name": f"{first['name']} | {second['name']}",
+                "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
+                "image_uri": [first["image_uri"], second["image_uri"]],
                 "partner_type": partner_type
             })
 
