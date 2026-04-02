@@ -108,7 +108,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
             {topCommanders.map((c, i) => (
               <div key={i} className="flex justify-between items-center">
                 <span className="truncate" style={{ color: 'var(--text-primary)' }} title={c.name}>
-                  {escapeHtml(c.name)}
+                  {c.name}
                 </span>
                 <span style={{ color: 'var(--text-secondary)' }}>{c.games}</span>
               </div>
@@ -152,7 +152,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
                   className="w-full text-left px-3 py-2 text-sm border-b last:border-b-0"
                   style={{ color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#e5e7eb' }}
                 >
-                  {escapeHtml(c.commander)}
+                  {c.commander}
                 </button>
               ))}
             </div>
@@ -165,7 +165,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
               <span className="text-purple-400">
                 {formatPartners(selectedCommander).split('\n').map((line, i, arr) => (
                   <span key={i}>
-                    {escapeHtml(line)}
+                    {line}
                     {i < arr.length - 1 && <br />}
                   </span>
                 ))}
