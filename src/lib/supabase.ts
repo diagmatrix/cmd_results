@@ -40,7 +40,8 @@ export async function fetchPlayers(limit: number = 8): Promise<GameStats[]> {
     player.games_won_and_started,
     player.unique_commanders,
     undefined,
-    player.winrate
+    player.winrate,
+    player.image_uri
   ));
 }
 

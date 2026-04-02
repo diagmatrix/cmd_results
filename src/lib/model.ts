@@ -136,9 +136,10 @@ export class GameStats {
   startedWon: number;
   uniqueCommanders?: number;
   colorIdentity?: string;
+  imageUri?: string;
   _winrate?: number;
 
-  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number, color_identity?: string, winrate?: number) {
+  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number, color_identity?: string, winrate?: number, imageUri?: string) {
     this.player = player;
     this.commander = commander;
     this.games = games;
@@ -148,6 +149,7 @@ export class GameStats {
     this.uniqueCommanders = uniqueCommanders;
     this.colorIdentity = color_identity;
     this._winrate = winrate;
+    this.imageUri = imageUri;
   }
 
   winrate(): string {
