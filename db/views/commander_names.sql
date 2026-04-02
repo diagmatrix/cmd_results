@@ -18,9 +18,9 @@ WITH possible_commanders AS (
     FROM public.partners
 ),
 played_commanders AS (
-    SELECT
+    SELECT 
         DISTINCT commander AS name
-    FROM public.players_and_commanders
+    FROM public.games
 )
 SELECT
     pos_cmd.name,
@@ -31,4 +31,3 @@ FROM possible_commanders pos_cmd
 LEFT JOIN played_commanders ply_cmd
     ON pos_cmd.name = ply_cmd.name
 ORDER BY ply_cmd.name NULLS LAST, pos_cmd.name;
-

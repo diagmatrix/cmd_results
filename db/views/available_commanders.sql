@@ -16,5 +16,5 @@ SELECT DISTINCT ON (name)
     type_line
 FROM public.cards
 WHERE
-    set_code NOT IN ('sld', 'unk', 'mb1', 'mb2')
+    set_code NOT IN ('unk', 'mb1', 'mb2')
 ORDER BY name, released_at ASC NULLS LAST, collector_number ASC;

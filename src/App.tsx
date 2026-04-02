@@ -11,15 +11,14 @@ import {
   fetchRecentGames,
   fetchPlayers,
   fetchCommanderStats,
-  fetchCombos,
   fetchStats
 } from './lib/supabase';
 
 function App() {
   const [games, setGames] = useState<Game[]>([]);
   const [players, setPlayers] = useState<GameStats[]>([]);
-  const [commanders, setCommanders] = useState<GameStats[]>([]);
-  const [combos, setCombos] = useState<GameStats[]>([]);
+  const [commandersByGames, setCommandersByGames] = useState<GameStats[]>([]);
+  const [commandersByWins, setCommandersByWins] = useState<GameStats[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(() => {
@@ -35,17 +34,17 @@ function App() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [gamesData, playersData, commandersData, combosData, statsData] = await Promise.all([
+      const [gamesData, playersData, commandersByGamesData, commandersByWinsData, statsData] = await Promise.all([
         fetchRecentGames(10),
         fetchPlayers(8),
-        fetchCommanderStats(8),
-        fetchCombos(8),
+        fetchCommanderStats(8, 'games_played'),
+        fetchCommanderStats(8, 'games_won'),
         fetchStats()
       ]);
       setGames(gamesData);
       setPlayers(playersData);
-      setCommanders(commandersData);
-      setCombos(combosData);
+      setCommandersByGames(commandersByGamesData);
+      setCommandersByWins(commandersByWinsData);
       setStats(statsData);
     } catch (err) {
       console.error('Error loading data:', err);
@@ -83,8 +82,8 @@ function App() {
             
             <StatsDisplay
               players={players}
-              commanders={commanders}
-              combos={combos}
+              commandersByGames={commandersByGames}
+              commandersByWins={commandersByWins}
               stats={stats}
               isDark={isDark}
             />

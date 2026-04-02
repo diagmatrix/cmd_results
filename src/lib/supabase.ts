@@ -42,11 +42,11 @@ export async function fetchPlayers(limit: number = 8): Promise<GameStats[]> {
   ));
 }
 
-export async function fetchCommanderStats(limit: number = 8): Promise<GameStats[]> {
+export async function fetchCommanderStats(limit: number = 8, orderBy: string = 'games_played'): Promise<GameStats[]> {
   const { data: commanders, error } = await supabase
     .from('commander_stats')
-    .select('commander, games_played, games_won, games_started, games_won_and_started')
-    .order('games_played', { ascending: false })
+    .select('*')
+    .order(orderBy, { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -60,35 +60,15 @@ export async function fetchCommanderStats(limit: number = 8): Promise<GameStats[
     commander.games_played,
     commander.games_won,
     commander.games_started,
-    commander.games_won_and_started
-  ));
-}
-
-export async function fetchCombos(limit: number = 8): Promise<GameStats[]> {
-  const { data: combos, error } = await supabase
-    .from('player_commander_combos')
-    .select('*')
-    .order('games_played', { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    console.error('Error loading player+commander combos:', error);
-    return [];
-  }
-
-  return (combos || []).map(combo => new GameStats(
-    combo.player,
-    combo.commander,
-    combo.games_played,
-    combo.games_won,
-    combo.games_started,
-    combo.games_won_and_started
+    commander.games_won_and_started,
+    undefined,
+    commander.color_identity
   ));
 }
 
 export async function fetchStats(): Promise<Stats> {
   const { data: stats, error } = await supabase
-    .from('stats')
+    .from('overall_stats')
     .select('*')
     .single();
   
@@ -122,13 +102,18 @@ export interface GameFormData {
 }
 
 export async function insertGame(gameData: GameFormData): Promise<{ error: Error | null }> {
-  const { error } = await supabase.from('raw_games').insert([{
-    player_data: gameData.playerData,
-    winner: gameData.winner,
-    starting_player: gameData.startingPlayer,
-    game_date: gameData.gameDate
-  }]);
+  const gameId = crypto.randomUUID();
+  
+  const participants = gameData.playerData.map(pd => ({
+    game_id: gameId,
+    game_date: gameData.gameDate,
+    player: pd.player,
+    commander: pd.commander,
+    is_winner: gameData.winner === pd.player,
+    is_starting: gameData.startingPlayer === pd.player
+  }));
 
+  const { error } = await supabase.from('games').insert(participants);
   return { error };
 }
 

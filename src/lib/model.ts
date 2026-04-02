@@ -135,8 +135,9 @@ export class GameStats {
   started: number;
   startedWon: number;
   uniqueCommanders?: number;
+  colorIdentity?: string;
 
-  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number) {
+  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number, color_identity?: string) {
     this.player = player;
     this.commander = commander;
     this.games = games;
@@ -144,16 +145,25 @@ export class GameStats {
     this.started = started;
     this.startedWon = startedWon;
     this.uniqueCommanders = uniqueCommanders;
+    this.colorIdentity = color_identity;
   }
 
   winrate(): string {
     return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
   }
 
-  getType(): 'player' | 'commander' | 'combo' {
-    if (this.player && this.commander) return 'combo';
+  getType(): 'player' | 'commander' {
     if (this.player) return 'player';
     return 'commander';
+  }
+
+  colorIdentitySymbolUrls(): string[] {
+    const colors = this.colorIdentity || 'C';
+    const [, sortedSymbols] = getColorName(colors);
+    return sortedSymbols
+      .split('')
+      .map(c => MANA_SYMBOLS[c])
+      .filter((url): url is string => !!url);
   }
 }
 
