@@ -23,16 +23,108 @@ export interface Game {
   created_at: string;
 }
 
-export interface CommanderData {
+interface GameDates {
+  date: string;
+  games: number;
+  wins: number;
+};
+
+const COLOR_NAMES: Record<string, string> = {
+  'U': 'Blue',
+  'B': 'Black',
+  'R': 'Red',
+  'G': 'Green',
+  'WU': 'Azorius',
+  'UB': 'Dimir',
+  'BR': 'Rakdos',
+  'RG': 'Gruul',
+  'GW': 'Selesnya',
+  'WB': 'Orzhov',
+  'UR': 'Izzet',
+  'BG': 'Golgari',
+  'RW': 'Boros',
+  'GU': 'Simic',
+  'WUB': 'Esper',
+  'UBR': 'Grixis',
+  'BRG': 'Jund',
+  'RGW': 'Naya',
+  'GWU': 'Bant',
+  'WBG': 'Abzan',
+  'URW': 'Jeskai',
+  'BGU': 'Sultai',
+  'RWB': 'Mardu',
+  'GUR': 'Temur',
+  'WUBR': 'Yore-Tiller',
+  'UBRG': 'Glint-Eye',
+  'WRBG': 'Dune-Brood',
+  'WURG': 'Ink-Treader',
+  'WUBRG': 'Five Color',
+  'C': 'Colorless',
+};
+
+const MANA_SYMBOLS: Record<string, string> = {
+  'W': 'https://svgs.scryfall.io/card-symbols/W.svg',
+  'U': 'https://svgs.scryfall.io/card-symbols/U.svg',
+  'B': 'https://svgs.scryfall.io/card-symbols/B.svg',
+  'R': 'https://svgs.scryfall.io/card-symbols/R.svg',
+  'G': 'https://svgs.scryfall.io/card-symbols/G.svg',
+  'C': 'https://svgs.scryfall.io/card-symbols/C.svg',
+};
+
+function getColorName(color: string): [string, string] {
+  const sorted = color.split('').sort().join('');
+
+  for (const colorIdentity in COLOR_NAMES) {
+    const colorSorted = colorIdentity.split('').sort().join('');
+    if (sorted === colorSorted) {
+      return [COLOR_NAMES[colorIdentity], colorIdentity];
+    }
+  }
+
+  return [color, color];
+}
+
+export class CommanderData {
   commander: string;
-  games_played: number;
-  games_won: number;
-  games_started: number;
-  games_won_and_started: number;
+  games: number;
+  wins: number;
+  started: number;
+  startedWon: number;
   players: string[];
-  game_dates: { date: string; games: number; wins: number }[];
-  color_identity: string | null;
-  image_uris: string[] | null;
+  gameDates: GameDates[];
+  colorIdentity?: string;
+  imageUris?: string[];
+
+  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, players: string[], game_dates: GameDates[], color_identity?: string, image_uris?: string[]) {
+    this.commander = commander;
+    this.games = games_played;
+    this.wins = games_won;
+    this.started = games_started;
+    this.startedWon = games_won_and_started;
+    this.players = players;
+    this.gameDates = game_dates;
+    this.colorIdentity = color_identity;
+    this.imageUris = image_uris;
+  }
+
+  winrate(): string {
+    return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
+  }
+
+  colorIdentityName(): string {
+    const colors = this.colorIdentity || 'C';
+    const [name] = getColorName(colors);
+    return name;
+  }
+
+  colorIdentitySymbolUrls(): string[] {
+    const colors = this.colorIdentity || 'C';
+    const [, sortedSymbols] = getColorName(colors);
+    return sortedSymbols
+      .split('')
+      .map(c => MANA_SYMBOLS[c])
+      .filter((url): url is string => !!url);
+  }
 }
 
 export class GameStats {

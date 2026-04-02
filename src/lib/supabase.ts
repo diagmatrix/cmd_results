@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config';
-import { type Game, GameStats, Stats, type PlayerData, type AvailableCommander, type CommanderName, type CommanderData } from './model.ts';
+import { type Game, GameStats, Stats, type PlayerData, type AvailableCommander, type CommanderName, CommanderData } from './model.ts';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -188,5 +188,15 @@ export async function fetchAllCommanders(): Promise<CommanderData[]> {
     return [];
   }
 
-  return data || [];
+  return (data || []).map(c => new CommanderData(
+    c.commander,
+    c.games_played,
+    c.games_won,
+    c.games_started,
+    c.games_won_and_started,
+    c.players,
+    c.game_dates,
+    c.color_identity,
+    c.image_uris
+  ));
 }
