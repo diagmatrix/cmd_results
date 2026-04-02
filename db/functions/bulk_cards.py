@@ -14,11 +14,11 @@ arg_parser.add_argument("--batch-size", "-s", type=int, default=None, help="Size
 arg_parser.add_argument("--include", "-i", nargs="*", default=[], help="Card types to include (e.g. Planeswalker, Creature, Vehicle, Spacecraft, Background)")
 
 class CardBatches(TypedDict):
-    Planeswalker: List[Dict]
-    Creature: List[Dict]
-    Vehicle: List[Dict]
-    Spacecraft: List[Dict]
-    Background: List[Dict]
+    Planeswalker: List[List[Dict]]
+    Creature: List[List[Dict]]
+    Vehicle: List[List[Dict]]
+    Spacecraft: List[List[Dict]]
+    Background: List[List[Dict]]
 
 def get_download_uri(session: requests.Session, url: str) -> str:
     response = session.get(url)
