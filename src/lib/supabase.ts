@@ -38,16 +38,31 @@ export async function fetchPlayers(limit: number = 8): Promise<GameStats[]> {
     player.games_won,
     player.games_started,
     player.games_won_and_started,
-    player.unique_commanders
+    player.unique_commanders,
+    undefined,
+    player.winrate
   ));
 }
 
-export async function fetchCommanderStats(limit: number = 8, orderBy: string = 'games_played'): Promise<GameStats[]> {
-  const { data: commanders, error } = await supabase
+export async function fetchCommanderStats(limit: number = 8, orderBy: string = 'games_played', minGames?: number): Promise<GameStats[]> {
+  let query = supabase
     .from('commander_stats')
-    .select('*')
-    .order(orderBy, { ascending: false })
-    .limit(limit);
+    .select('*');
+
+  if (minGames !== undefined) {
+    query = query.gt('games_played', minGames);
+  }
+
+  query = query.order(orderBy, { ascending: false });
+
+  // Secondary sort by games_played for tie-breaking
+  if (orderBy !== 'games_played') {
+    query = query.order('games_played', { ascending: false });
+  }
+
+  query = query.limit(limit);
+
+  const { data: commanders, error } = await query;
 
   if (error) {
     console.error('Error loading commanders:', error);
@@ -62,7 +77,8 @@ export async function fetchCommanderStats(limit: number = 8, orderBy: string = '
     commander.games_started,
     commander.games_won_and_started,
     undefined,
-    commander.color_identity
+    commander.color_identity,
+    commander.winrate
   ));
 }
 

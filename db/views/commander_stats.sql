@@ -6,7 +6,8 @@ SELECT
     sum(CASE WHEN g.is_winner THEN 1 ELSE 0 END) AS games_won,
     sum(CASE WHEN g.is_starting THEN 1 ELSE 0 END) AS games_started,
     sum(CASE WHEN g.is_winner AND g.is_starting THEN 1 ELSE 0 END) AS games_won_and_started,
-    cn.color_identity
+    cn.color_identity,
+    ROUND(sum(CASE WHEN g.is_winner THEN 1 ELSE 0 END)::numeric / count(*)::numeric * 100, 2) AS winrate
 FROM public.games g
 LEFT JOIN public.commander_names cn 
     ON g.commander = cn.name

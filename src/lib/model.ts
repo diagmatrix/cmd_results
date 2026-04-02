@@ -136,8 +136,9 @@ export class GameStats {
   startedWon: number;
   uniqueCommanders?: number;
   colorIdentity?: string;
+  _winrate?: number;
 
-  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number, color_identity?: string) {
+  constructor(player?: string, commander?: string, games: number = 0, wins: number = 0, started: number = 0, startedWon: number = 0, uniqueCommanders?: number, color_identity?: string, winrate?: number) {
     this.player = player;
     this.commander = commander;
     this.games = games;
@@ -146,9 +147,13 @@ export class GameStats {
     this.startedWon = startedWon;
     this.uniqueCommanders = uniqueCommanders;
     this.colorIdentity = color_identity;
+    this._winrate = winrate;
   }
 
   winrate(): string {
+    if (this._winrate !== undefined) {
+      return this._winrate.toFixed(0);
+    }
     return this.games > 0 ? ((this.wins / this.games) * 100).toFixed(0) : '0';
   }
 
