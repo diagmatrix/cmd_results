@@ -6,6 +6,8 @@ import { GamesList } from './components/GamesList';
 import { GamesPage } from './components/GamesPage';
 import { StatsDisplay } from './components/StatsDisplay';
 import { CommanderPage } from './components/CommandersPage';
+import { ChangelogPage } from './components/ChangelogPage';
+import { Footer } from './components/Footer';
 import { type Game, type GameStats, type Stats } from './lib/model';
 import {
   fetchRecentGames,
@@ -123,7 +125,14 @@ function App() {
             <h1 className="text-3xl font-bold mb-6 text-center">Stats</h1>
           </div>
         } />
+        <Route path="/changelog" element={
+          <div className="max-w-[95%] mx-auto pd-1 md:pd-2 lg:pd-4">
+            <h1 className="text-3xl font-bold mb-6 text-center">Changelog</h1>
+            <ChangelogPage />
+          </div>
+        } />
       </Routes>
+      <Footer />
     </div>
   );
 }
