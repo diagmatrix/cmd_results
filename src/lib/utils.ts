@@ -10,3 +10,9 @@ export function formatPartners(commander: string): string {
   }
   return commander.replace(' | ', '\n');
 }
+
+// Helper function to parse YYYY-MM-DD as local date to avoid timezone issues
+export function parseDateString(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed
+}

@@ -8,6 +8,8 @@ interface GamesTimelineProps {
   gameDates: GameDate[];
 }
 
+import { parseDateString } from '../lib/utils';
+
 export function GamesTimeline({ gameDates }: GamesTimelineProps) {
   if (!gameDates || gameDates.length === 0) {
     return (
@@ -18,7 +20,7 @@ export function GamesTimeline({ gameDates }: GamesTimelineProps) {
   }
 
   // Sort game dates by date (oldest first)
-  const sortedDates = [...gameDates].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sortedDates = [...gameDates].sort((a, b) => parseDateString(a.date).getTime() - parseDateString(b.date).getTime());
 
   // Get result info for each game date
   const getResultInfo = (games: number, wins: number) => {
@@ -56,7 +58,7 @@ export function GamesTimeline({ gameDates }: GamesTimelineProps) {
                   className="text-xs mb-2 text-center whitespace-nowrap"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  {new Date(gameDate.date).toLocaleDateString('en-GB', {
+                  {parseDateString(gameDate.date).toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
