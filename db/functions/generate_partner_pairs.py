@@ -1,9 +1,6 @@
-import json
-
-import requests
 import supabase
 from os import environ as env
-from typing import Optional, List, TypedDict
+from typing import List, TypedDict
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,9 +31,22 @@ class PartnerPair(TypedDict):
     partner_type: str
 
 def get_client() -> supabase.Client:
+    supabase_url = env.get('SUPABASE_URL')
+    supabase_key = env.get('SUPABASE_KEY')
+
+    if not supabase_url or not supabase_key:
+        missing_vars = []
+        if not supabase_url:
+            missing_vars.append('SUPABASE_URL')
+        if not supabase_key:
+            missing_vars.append('SUPABASE_KEY')
+        missing = ', '.join(missing_vars)
+        raise RuntimeError(f"Missing required environment variable(s): {missing}. "
+                           f"Please set them before running this script.")
+
     return supabase.create_client(
-        supabase_url=env.get('SUPABASE_URL'),
-        supabase_key=env.get('SUPABASE_KEY')
+        supabase_url=supabase_url,
+        supabase_key=supabase_key,
     )
 
 def get_cards(client: supabase.Client) -> List[AvailableCommander]:
