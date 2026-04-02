@@ -1,10 +1,14 @@
 DROP VIEW IF EXISTS public.commander_names;
-CREATE OR REPLACE VIEW public.commander_names WITH (security_invoker = 'on') AS
+CREATE OR REPLACE VIEW public.commander_names WITH (security_invoker = on) AS
 WITH possible_commanders AS (
     SELECT
         name,
         color_identity,
-        ARRAY[image_uri] AS image_uris
+        CASE
+            WHEN image_uri IS NOT NULL 
+                THEN ARRAY[image_uri]
+            ELSE ARRAY[]::text[]
+        END AS image_uris
     FROM public.available_commanders
     UNION ALL
     SELECT
