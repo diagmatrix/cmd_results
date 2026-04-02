@@ -29,7 +29,7 @@ export interface CommanderData {
   games_won: number;
   games_started: number;
   games_won_and_started: number;
-  player_data: string[];
+  players: string[];
   game_dates: { date: string; games: number; wins: number }[];
   color_identity: string | null;
   image_uris: string[] | null;
