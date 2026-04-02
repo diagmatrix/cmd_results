@@ -137,6 +137,7 @@ export async function fetchCommanderNames(searchTerm: string, limit: number = 5)
     .from('commander_names')
     .select('name, has_been_played')
     .ilike('name', `%${searchTerm}%`)
+    .order('has_been_played', { ascending: false })
     .limit(limit);
 
   if (error) {
@@ -145,36 +146,6 @@ export async function fetchCommanderNames(searchTerm: string, limit: number = 5)
   }
 
   return data || [];
-}
-
-export async function fetchAvailableCommanders(searchTerm: string, limit: number = 5): Promise<AvailableCommander[]> {
-  const { data, error } = await supabase
-    .from('available_commanders')
-    .select('name, color_identity, image_uri')
-    .ilike('name', `%${searchTerm}%`)
-    .limit(limit);
-
-  if (error) {
-    console.error('Error loading available commanders:', error);
-    return [];
-  }
-
-  return data || [];
-}
-
-export async function fetchPreviousCommanders(searchTerm: string, limit: number = 5): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('commanders')
-    .select('commander')
-    .ilike('commander', `%${searchTerm}%`)
-    .limit(limit);
-
-  if (error) {
-    console.error('Error loading previous commanders:', error);
-    return [];
-  }
-
-  return (data || []).map(c => c.commander);
 }
 
 export async function fetchAllCommanders(): Promise<CommanderData[]> {
