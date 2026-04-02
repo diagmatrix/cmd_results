@@ -1,3 +1,5 @@
+import { parseDateString } from '../lib/utils';
+
 interface GameDate {
   date: string;
   games: number;
@@ -7,8 +9,6 @@ interface GameDate {
 interface GamesTimelineProps {
   gameDates: GameDate[];
 }
-
-import { parseDateString } from '../lib/utils';
 
 export function GamesTimeline({ gameDates }: GamesTimelineProps) {
   if (!gameDates || gameDates.length === 0) {
