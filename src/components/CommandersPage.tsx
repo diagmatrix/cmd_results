@@ -41,7 +41,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
 
   const topColorIdentities = Object.entries(colorIdentityCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 3)
+    .slice(0, 5)
     .map(([colors, count]) => ({
       colors,
       ...formatColorIdentity(colors),
@@ -49,7 +49,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
     }));
 
   const topCommanders = commanders
-    .slice(0, 3)
+    .slice(0, 5)
     .map(c => ({
       name: c.commander,
       games: c.games_played
@@ -174,7 +174,7 @@ export function CommanderPage({ isDark = true }: CommanderPageProps) {
                 {selectedCommanderData.games_played} games · {selectedCommanderData.games_won} wins ({((selectedCommanderData.games_won / selectedCommanderData.games_played) * 100).toFixed(0)}%)
               </span>
               <span style={{ color: '#fbbf24' }} className="text-base font-normal">
-                {selectedCommanderData.player_data?.length || 0} players: {selectedCommanderData.player_data.join(', ')}
+                {selectedCommanderData.players?.length || 0} players: {selectedCommanderData.players?.join(', ')}
               </span>
             </div>
             <GamesTimeline gameDates={selectedCommanderData.game_dates} />
