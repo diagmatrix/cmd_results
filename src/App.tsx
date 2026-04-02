@@ -38,7 +38,7 @@ function App() {
         fetchRecentGames(10),
         fetchPlayers(8),
         fetchCommanderStats(8, 'games_played'),
-        fetchCommanderStats(8, 'games_won'),
+        fetchCommanderStats(8, 'winrate', 3),
         fetchStats()
       ]);
       setGames(gamesData);
