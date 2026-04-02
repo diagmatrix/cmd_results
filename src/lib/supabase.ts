@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config';
-import { type Game, GameStats, Stats, type PlayerData, type AvailableCommander, type CommanderName, CommanderData } from './model.ts';
+import { type Game, GameStats, Stats, type PlayerData, type CommanderName, CommanderData } from './model.ts';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
