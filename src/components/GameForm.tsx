@@ -90,12 +90,13 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
     e.preventDefault();
     setError(null);
 
-    const validPlayers = playerRows.filter(p => p.player && p.commander);
-    
-    const trimmedPlayers = validPlayers.map(p => ({
-      player: p.player.trim(),
-      commander: p.commander.trim()
-    }));
+    // Trim values first, then filter out empty/whitespace-only entries
+    const trimmedPlayers = playerRows
+      .map(p => ({
+        player: p.player.trim(),
+        commander: p.commander.trim()
+      }))
+      .filter(p => p.player && p.commander);
 
     if (trimmedPlayers.length < 2) {
       setError('Need at least 2 players with commanders');
