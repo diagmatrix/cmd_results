@@ -31,7 +31,7 @@ export function GamesList({ limit = 10, isDark = true, refreshTrigger = 0 }: Gam
   }, [loadData, refreshTrigger]);
 
   if (loading) {
-    return <Spinner />;
+    return <Spinner className="py-8" />;
   }
   if (!games.length) {
     return <p className="text-center py-4" style={{ color: 'var(--text-secondary)' }}>No games yet</p>;

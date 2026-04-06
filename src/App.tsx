@@ -28,7 +28,7 @@ function App() {
         isDark={isDark} 
         onToggleTheme={() => setIsDark(!isDark)} 
       />
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<Spinner className="py-8" />}>
         <Routes>
           <Route path="/" element={<HomePage isDark={isDark} />} />
           <Route path="/games" element={
