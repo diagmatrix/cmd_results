@@ -2,6 +2,10 @@
 
 All notable changes to the Commander Game Tracker will be documented in this file.
 
+## v1.0.1 - 2026-04-06
+
+- Bug fixes
+
 ## v1.0.0 - 2026-04-02
 
 - Initial release of Commander Game Tracker

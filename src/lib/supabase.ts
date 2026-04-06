@@ -6,7 +6,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 export async function fetchRecentGames(limit: number = 10): Promise<Game[]> {
   const { data: games, error } = await supabase
-    .from('raw_games')
+    .from('game_results')
     .select('*')
     .order('game_date', { ascending: false })
     .limit(limit);
@@ -99,7 +99,7 @@ export async function fetchStats(): Promise<Stats> {
 
 export async function fetchAllGames(): Promise<Game[]> {
   const { data: games, error } = await supabase
-    .from('raw_games')
+    .from('game_results')
     .select('*')
     .order('game_date', { ascending: false });
 
