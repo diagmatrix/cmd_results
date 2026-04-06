@@ -31,8 +31,8 @@
 2. **Environment Variables:**
    Create a `.env` file in the root directory (based on `.env.example` if available) and add your Supabase connection details:
    ```env
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_URL=your_supabase_project_url
+   SUPABASE_KEY=your_supabase_service_role_key
    ```
 
 3. **Database Setup:**
