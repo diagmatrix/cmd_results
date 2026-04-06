@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { fetchAllCommanders } from '../lib/supabase';
 import { CommanderData } from '../lib/model';
+import { getManaSymbolUrl } from '../lib/utils';
 import { Spinner } from './Spinner';
 import { CommanderGrid } from './CommanderGrid';
 import { CommanderModal } from './CommanderModal';
@@ -11,7 +12,7 @@ interface CommanderPageProps {
 }
 
 type ColorMode = 'exact' | 'atMost' | 'atLeast';
-type OrderBy = 'games' | 'wins';
+type OrderBy = 'games' | 'wins' | 'name' | 'winrate';
 type OrderDir = 'asc' | 'desc';
 
 const COLORS = ['W', 'U', 'B', 'R', 'G', 'C'] as const;
@@ -23,8 +24,8 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [colorFilter, setColorFilter] = useState<string[]>([]);
   const [colorMode, setColorMode] = useState<ColorMode>('exact');
-  const [orderBy, setOrderBy] = useState<OrderBy>('games');
-  const [orderDir, setOrderDir] = useState<OrderDir>('desc');
+  const [orderBy, setOrderBy] = useState<OrderBy>('name');
+  const [orderDir, setOrderDir] = useState<OrderDir>('asc');
   const [page, setPage] = useState(0);
   
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,9 +91,33 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
 
     // Sort
     result.sort((a, b) => {
-      const valueA = orderBy === 'games' ? a.games : a.wins;
-      const valueB = orderBy === 'games' ? b.games : b.wins;
-      return orderDir === 'asc' ? valueA - valueB : valueB - valueA;
+      let valueA: number | string;
+      let valueB: number | string;
+      
+      if (orderBy === 'games') {
+        valueA = a.games;
+        valueB = b.games;
+      } else if (orderBy === 'wins') {
+        valueA = a.wins;
+        valueB = b.wins;
+      } else if (orderBy === 'name') {
+        valueA = a.commander.toLowerCase();
+        valueB = b.commander.toLowerCase();
+      } else {
+        // winrate
+        valueA = parseFloat(a.winrate());
+        valueB = parseFloat(b.winrate());
+      }
+      
+      if (typeof valueA === 'string' && typeof valueB === 'string') {
+        return orderDir === 'asc' 
+          ? valueA.localeCompare(valueB)
+          : valueB.localeCompare(valueA);
+      } else {
+        return orderDir === 'asc' 
+          ? (valueA as number) - (valueB as number)
+          : (valueB as number) - (valueA as number);
+      }
     });
 
     return result;
@@ -122,8 +147,8 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
     setSearchTerm('');
     setColorFilter([]);
     setColorMode('exact');
-    setOrderBy('games');
-    setOrderDir('desc');
+    setOrderBy('name');
+    setOrderDir('asc');
     setPage(0);
   };
 
@@ -166,10 +191,6 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
         ))}
       </span>
     );
-  };
-
-  const getColorSymbolUrl = (color: string) => {
-    return `https://svgs.scryfall.io/card-symbols/${color}.svg`;
   };
 
   return (
@@ -262,7 +283,7 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
                     borderColor: colorFilter.includes(color) ? '#c4b5fd' : isDark ? '#4b5563' : '#d1d5db'
                   }}
                 >
-                  <img src={getColorSymbolUrl(color)} alt={color} className="w-6 h-6 mx-auto" />
+                  <img src={getManaSymbolUrl(color)} alt={color} className="w-6 h-6 mx-auto" />
                 </button>
               ))}
               <div className="flex gap-2 ml-2">
@@ -313,6 +334,18 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
             </label>
             <div className="flex flex-wrap gap-2 items-center">
               <button
+                onClick={() => setOrderBy('name')}
+                className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                  orderBy === 'name' ? 'font-bold' : ''
+                }`}
+                style={{
+                  backgroundColor: orderBy === 'name' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                  color: orderBy === 'name' ? '#60a5fa' : 'var(--text-secondary)'
+                }}
+              >
+                Name
+              </button>
+              <button
                 onClick={() => setOrderBy('games')}
                 className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
                   orderBy === 'games' ? 'font-bold' : ''
@@ -335,6 +368,18 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
                 }}
               >
                 Wins
+              </button>
+              <button
+                onClick={() => setOrderBy('winrate')}
+                className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                  orderBy === 'winrate' ? 'font-bold' : ''
+                }`}
+                style={{
+                  backgroundColor: orderBy === 'winrate' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                  color: orderBy === 'winrate' ? '#60a5fa' : 'var(--text-secondary)'
+                }}
+              >
+                Winrate
               </button>
               <button
                 onClick={() => setOrderDir(prev => prev === 'asc' ? 'desc' : 'asc')}

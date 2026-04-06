@@ -111,8 +111,6 @@ export async function fetchAllGames(): Promise<Game[]> {
   return games || [];
 }
 
-
-
 export async function insertGame(gameData: GameFormData): Promise<{ error: Error | null }> {
   const gameId = crypto.randomUUID();
   
@@ -165,6 +163,22 @@ export async function fetchAllCommanders(): Promise<CommanderData[]> {
     c.players,
     c.game_dates,
     c.color_identity,
-    c.image_uris
+    c.image_uris,
+    c.card_ids
   ));
+}
+
+export async function fetchCard(cardId: string): Promise<Object> {
+  const { data, error } = await supabase
+    .from('cards')
+    .select('raw_card')
+    .eq('id', cardId)
+    .limit(1);
+
+  if (error) {
+    console.error('Error loading card:', error);
+    return {};
+  }
+
+  return data?.[0]?.raw_card || {};
 }

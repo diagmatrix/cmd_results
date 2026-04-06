@@ -29,7 +29,8 @@ SELECT
     games_stats.*,
     games.game_dates,
     players.players,
-	commander_names.image_uris
+	commander_names.image_uris,
+	commander_names.card_ids
 FROM public.commander_stats games_stats
 INNER JOIN games 
     ON games_stats.commander = games.commander

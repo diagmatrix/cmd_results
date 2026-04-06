@@ -62,13 +62,16 @@ export function CommanderGrid({
         </div>
 
         {/* Commander name */}
-        <div className="text-sm font-semibold text-center mb-1 text-purple-400" style={{ whiteSpace: 'pre-line' }}>
+        <div className="text-lg font-semibold text-center mb-1 text-purple-400" style={{ whiteSpace: 'pre-line' }}>
           {formatPartners(commander.commander)}
         </div>
 
         {/* Stats */}
-        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-          {commander.wins}/{commander.games} ({commander.winrate()}%)
+        <div className="text-md font-bold" style={{ color: 'var(--text-secondary)' }}>
+          {commander.wins}/{commander.games}
+        </div>
+        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+          {commander.winrate()}% win rate
         </div>
       </button>
     );
