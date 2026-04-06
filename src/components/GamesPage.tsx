@@ -149,14 +149,6 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
     </th>
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-xl" style={{ color: 'var(--text-secondary)' }}>Loading games...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
@@ -166,6 +158,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
             <select
               value={filters.winner}
               onChange={(e) => handleFilterChange('winner', e.target.value)}
+              disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
               className="border rounded px-3 py-2 min-w-[140px]"
             >
@@ -180,6 +173,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
             <select
               value={filters.player}
               onChange={(e) => handleFilterChange('player', e.target.value)}
+              disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
               className="border rounded px-3 py-2 min-w-[140px]"
             >
@@ -194,6 +188,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
             <select
               value={filters.commander}
               onChange={(e) => handleFilterChange('commander', e.target.value)}
+              disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
               className="border rounded px-3 py-2 min-w-[140px]"
             >
@@ -209,6 +204,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
               type="date"
               value={filters.dateFrom}
               onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
+              disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
               className="border rounded px-3 py-2"
             />
@@ -219,6 +215,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
               type="date"
               value={filters.dateTo}
               onChange={(e) => handleFilterChange('dateTo', e.target.value)}
+              disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
               className="border rounded px-3 py-2"
             />
@@ -277,9 +274,15 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
               </tr>
             </thead>
             <tbody>
-              {paginatedGames.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+                  <td colSpan={6} className="px-3 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
+                    Loading games...
+                  </td>
+                </tr>
+              ) : paginatedGames.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-3 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
                     No games found
                   </td>
                 </tr>
@@ -328,6 +331,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
           <select
             value={pageSize}
             onChange={(e) => { setPageSize(Number(e.target.value) as 25 | 50); setCurrentPage(1); }}
+            disabled={loading}
             style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
             className="border rounded px-2 py-1"
           >
@@ -340,7 +344,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
             className="px-3 py-1 rounded disabled:opacity-50"
             style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
           >
@@ -351,7 +355,7 @@ export function GamesPage({ isDark = true }: GamesPageProps) {
           </span>
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage >= totalPages}
+            disabled={currentPage >= totalPages || loading}
             className="px-3 py-1 rounded disabled:opacity-50"
             style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
           >
