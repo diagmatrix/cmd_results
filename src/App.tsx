@@ -2,6 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { Footer } from './components/Footer';
+import { Spinner } from './components/Spinner';
 
 const HomePage = lazy(() => import('./components/HomePage'));
 const GamesPage = lazy(() => import('./components/GamesPage'));
@@ -9,12 +10,6 @@ const CommanderPage = lazy(() => import('./components/CommandersPage'));
 const PlayersPage = lazy(() => import('./components/PlayersPage'));
 const StatsPage = lazy(() => import('./components/StatsPage'));
 const ChangelogPage = lazy(() => import('./components/ChangelogPage'));
-
-const LoadingFallback = () => (
-  <div className="flex justify-center items-center min-h-[50vh]">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
-  </div>
-);
 
 function App() {
   const [isDark, setIsDark] = useState(() => {
@@ -33,7 +28,7 @@ function App() {
         isDark={isDark} 
         onToggleTheme={() => setIsDark(!isDark)} 
       />
-      <Suspense fallback={<LoadingFallback />}>
+      <Suspense fallback={<Spinner />}>
         <Routes>
           <Route path="/" element={<HomePage isDark={isDark} />} />
           <Route path="/games" element={
