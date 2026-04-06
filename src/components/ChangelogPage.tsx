@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import changelogContent from '../../CHANGELOG.md?raw';
 
-export function ChangelogPage() {
+export default function ChangelogPage() {
   return (
     <div className="rounded-lg p-6" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div 

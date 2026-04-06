@@ -19,7 +19,7 @@ interface Filters {
   dateTo: string;
 }
 
-export function GamesPage({ isDark = true }: GamesPageProps) {
+export default function GamesPage({ isDark = true }: GamesPageProps) {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState<SortField>('game_date');

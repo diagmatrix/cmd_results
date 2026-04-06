@@ -9,7 +9,7 @@ interface CommanderPageProps {
   isDark?: boolean;
 }
 
-export function CommanderPage({ isDark = true }: CommanderPageProps) {
+export default function CommanderPage({ isDark = true }: CommanderPageProps) {
   const [commanders, setCommanders] = useState<CommanderData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCommander, setSelectedCommander] = useState<string>('');

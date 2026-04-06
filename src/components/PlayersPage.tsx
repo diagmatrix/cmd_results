@@ -1,4 +1,4 @@
-export function PlayersPage() {
+export default function PlayersPage() {
   return (
     <div className="rounded-lg p-4 flex flex-col items-center justify-center min-h-[60vh]" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <svg xmlns="http://www.w3.org/2000/svg" className="w-24 h-24 mb-6" style={{ color: 'var(--text-secondary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
