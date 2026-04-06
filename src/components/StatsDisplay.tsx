@@ -1,18 +1,84 @@
+import { useState, useEffect, useCallback } from 'react';
 import { type GameStats, Stats } from '../lib/model';
 import { escapeHtml, formatPartners, getColorIdentityGradient } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { fetchPlayers, fetchCommanderStats, fetchStats } from '../lib/supabase';
+import { Spinner } from './Spinner';
 
 interface StatsDisplayProps {
-  players: GameStats[];
-  commandersByGames: GameStats[];
-  commandersByWins: GameStats[];
-  stats: Stats | null;
   isDark?: boolean;
+  refreshTrigger?: number;
 }
 
-export function StatsDisplay({ players, commandersByGames, commandersByWins, stats, isDark = true }: StatsDisplayProps) {
-  const safeStats = stats || new Stats(0, 0, 0);
+export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplayProps) {
+  const [players, setPlayers] = useState<GameStats[]>([]);
+  const [commandersByGames, setCommandersByGames] = useState<GameStats[]>([]);
+  const [commandersByWins, setCommandersByWins] = useState<GameStats[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingPlayers, setLoadingPlayers] = useState(true);
+  const [loadingCommandersByGames, setLoadingCommandersByGames] = useState(true);
+  const [loadingCommandersByWins, setLoadingCommandersByWins] = useState(true);
+  
   const navigate = useNavigate();
+
+  const loadStatsData = useCallback(async () => {
+    setLoadingStats(true);
+    try {
+      const statsData = await fetchStats();
+      setStats(statsData);
+    } catch (err) {
+      console.error('Error loading overall stats:', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  }, []);
+
+  const loadPlayersData = useCallback(async () => {
+    setLoadingPlayers(true);
+    try {
+      const playersData = await fetchPlayers(8);
+      setPlayers(playersData);
+    } catch (err) {
+      console.error('Error loading players:', err);
+    } finally {
+      setLoadingPlayers(false);
+    }
+  }, []);
+
+  const loadCommandersByGamesData = useCallback(async () => {
+    setLoadingCommandersByGames(true);
+    try {
+      const commandersData = await fetchCommanderStats(8, 'games_played');
+      setCommandersByGames(commandersData);
+    } catch (err) {
+      console.error('Error loading commanders by games:', err);
+    } finally {
+      setLoadingCommandersByGames(false);
+    }
+  }, []);
+
+  const loadCommandersByWinsData = useCallback(async () => {
+    setLoadingCommandersByWins(true);
+    try {
+      const commandersData = await fetchCommanderStats(8, 'winrate', 3);
+      setCommandersByWins(commandersData);
+    } catch (err) {
+      console.error('Error loading commanders by wins:', err);
+    } finally {
+      setLoadingCommandersByWins(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadStatsData();
+    loadPlayersData();
+    loadCommandersByGamesData();
+    loadCommandersByWinsData();
+  }, [loadStatsData, loadPlayersData, loadCommandersByGamesData, loadCommandersByWinsData, refreshTrigger]);
+
+  const safeStats = stats || new Stats(0, 0, 0);
 
   const purpleColor = isDark ? '#c4b5fd' : '#7c3aed';
   const yellowColor = isDark ? '#fcd34d' : '#b45309';
@@ -83,37 +149,67 @@ export function StatsDisplay({ players, commandersByGames, commandersByWins, sta
     <>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
-          <div style={{ color: 'var(--text-secondary)' }}>Total games recorded</div>
+          {loadingStats ? (
+            <Spinner size="sm" />
+          ) : (
+            <>
+              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>Total games recorded</div>
+            </>
+          )}
         </div>
         <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
-          <div style={{ color: 'var(--text-secondary)' }}>Unique players</div>
+          {loadingStats ? (
+            <Spinner size="sm" />
+          ) : (
+            <>
+              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>Unique players</div>
+            </>
+          )}
         </div>
         <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
-          <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+          {loadingStats ? (
+            <Spinner size="sm" />
+          ) : (
+            <>
+              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+            </>
+          )}
         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {players.map(renderPlayerStatCard)}
-          </div>
+          {loadingPlayers ? (
+            <Spinner size="sm" />
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {players.map(renderPlayerStatCard)}
+            </div>
+          )}
         </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Most played commanders</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {commandersByGames.map(renderCommanderStatCard)}
-          </div>
+          {loadingCommandersByGames ? (
+            <Spinner size="sm" />
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {commandersByGames.map(renderCommanderStatCard)}
+            </div>
+          )}
         </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Best performing commanders</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {commandersByWins.map(renderCommanderStatCard)}
-          </div>
+          {loadingCommandersByWins ? (
+            <Spinner size="sm" />
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {commandersByWins.map(renderCommanderStatCard)}
+            </div>
+          )}
         </div>
       </div>
     </>

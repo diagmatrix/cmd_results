@@ -1,12 +1,38 @@
+import { useState, useEffect, useCallback } from 'react';
 import type { Game, PlayerData } from '../lib/model';
 import { escapeHtml } from '../lib/utils';
+import { fetchRecentGames } from '../lib/supabase';
+import { Spinner } from './Spinner';
 
 interface GamesListProps {
-  games: Game[];
+  limit?: number;
   isDark?: boolean;
+  refreshTrigger?: number;
 }
 
-export function GamesList({ games, isDark = true }: GamesListProps) {
+export function GamesList({ limit = 10, isDark = true, refreshTrigger = 0 }: GamesListProps) {
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchRecentGames(limit);
+      setGames(data);
+    } catch (err) {
+      console.error('Error loading games:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [limit]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData, refreshTrigger]);
+
+  if (loading) {
+    return <Spinner />;
+  }
   if (!games.length) {
     return <p className="text-center py-4" style={{ color: 'var(--text-secondary)' }}>No games yet</p>;
   }
