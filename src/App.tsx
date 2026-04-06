@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { NavBar } from './components/NavBar';
 import { GameForm } from './components/GameForm';
 import { GamesList } from './components/GamesList';
@@ -30,6 +30,8 @@ function App() {
     return saved ? saved === 'dark' : true;
   });
 
+  const { pathname } = useLocation();
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -58,8 +60,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (pathname === '/') {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [loadData, pathname]);
 
   const handleGameSuccess = () => {
     loadData();
