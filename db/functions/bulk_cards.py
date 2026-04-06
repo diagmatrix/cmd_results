@@ -10,7 +10,7 @@ load_dotenv()
 SCRYFALL_URL = "https://api.scryfall.com/bulk-data/default-cards"
 
 arg_parser = argparse.ArgumentParser(description="Bulk upsert cards from Scryfall")
-arg_parser.add_argument("--batch-size", "-s", type=int, default=None, help="Size of each batch to process")
+arg_parser.add_argument("--batch-size", "-s", type=int, default=100, help="Size of each batch to process")
 arg_parser.add_argument("--include", "-i", nargs="*", default=[], help="Card types to include (e.g. Planeswalker, Creature, Vehicle, Spacecraft, Background)")
 
 class CardBatches(TypedDict):
@@ -35,6 +35,15 @@ def upsert_batch(cards: list[dict]):
     mapped_cards = []
     for card in cards:
         card["cmc"] = str(card.get("cmc", 0))  # Ugly, but fixes JSON serialization error
+        image_uris = card.get("image_uris")
+        if not image_uris:
+            if "//" in card.get("name", ""):  # Double-faced card
+                front_name = card["name"].split("//")[0].strip()
+                for face in card.get("card_faces", []):
+                    if face.get("name", "") == front_name:
+                        image_uris = face.get("image_uris")
+                        break
+
         mapped_cards.append({
             "id": card["id"],
             "name": card.get("name", "Unknown"),
@@ -47,7 +56,7 @@ def upsert_batch(cards: list[dict]):
             "mana_cost": card.get("mana_cost"),
             "color_identity": card.get("color_identity"),
             "colors": card.get("colors"),
-            "image_uris": card.get("image_uris"),
+            "image_uris": image_uris,
             "raw_card": card
         })
     response = requests.post(
@@ -61,7 +70,7 @@ def upsert_batch(cards: list[dict]):
         json=mapped_cards
     )
     response.raise_for_status()
-    action_message = 'UPSERTED' if response.status_code == 201 else 'NO CHANGES'
+    action_message = 'INSERTED + UPDATED' if response.status_code == 201 else 'UPDATED'
     print(f"{action_message} (HTTP {response.status_code}) - Sent {len(mapped_cards)} cards")
 
 def process_cards(session: requests.Session, url: str, batch_size: Optional[int] = None) -> CardBatches:

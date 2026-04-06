@@ -222,6 +222,8 @@ if __name__ == "__main__":
     partner_cards = discard_non_partner_cards(commanders)
     print(f"Filtered to {len(partner_cards)} partner cards.")
     categorized_partners = categorize_partners(partner_cards)
+    print(f"Cleaining up the partner table...")
+    client.table('partners').delete().neq("name", "All").execute()
     print("Creating pairs for 'Partner with' commanders...")
     partner_with = process_specific_partners(categorized_partners['SPECIFIC'], "Partner with")
     upsert_partners(client, partner_with)

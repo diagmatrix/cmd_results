@@ -8,7 +8,7 @@ SELECT DISTINCT ON (name)
         WHEN image_uris IS NOT NULL
             THEN image_uris ->> 'large'
         ELSE
-            (coalesce(raw_card ->> 'card_faces', '[]')::jsonb -> 1 ->> 'image_uris')::jsonb ->> 'large'
+            'https://cards.scryfall.io/large/front/e/c/ec8e4142-7c46-4d2f-aaa6-6410f323d9f0.jpg?1561851198' -- Totally Lost
     END AS image_uri,
     raw_card ->> 'oracle_text' AS oracle_text,
     raw_card ->> 'keywords' AS keywords,
@@ -17,4 +17,4 @@ SELECT DISTINCT ON (name)
 FROM public.cards
 WHERE
     set_code NOT IN ('unk', 'mb1', 'mb2')
-ORDER BY name, released_at ASC NULLS LAST, collector_number ASC;
+ORDER BY name, (set_code = 'sld'), released_at ASC NULLS LAST, collector_number ASC;
