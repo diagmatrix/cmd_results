@@ -165,7 +165,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
             >
               <option value="">All</option>
               {uniqueWinners.map(w => (
-                <option key={w} value={escapeHtml(w)}>{escapeHtml(w)}</option>
+                <option key={w} value={w}>{escapeHtml(w)}</option>
               ))}
             </select>
           </div>
@@ -180,7 +180,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
             >
               <option value="">All</option>
               {uniquePlayers.map(p => (
-                <option key={p} value={escapeHtml(p)}>{escapeHtml(p)}</option>
+                <option key={p} value={p}>{escapeHtml(p)}</option>
               ))}
             </select>
           </div>
