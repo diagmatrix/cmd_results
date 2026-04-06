@@ -1,22 +1,33 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { fetchAllCommanders } from '../lib/supabase';
 import { CommanderData } from '../lib/model';
-import { formatPartners } from '../lib/utils';
-import { GamesTimeline } from './GamesTimeline';
 import { Spinner } from './Spinner';
+import { CommanderGrid } from './CommanderGrid';
+import { CommanderModal } from './CommanderModal';
 
 interface CommanderPageProps {
   isDark?: boolean;
 }
 
+type ColorMode = 'exact' | 'atMost' | 'atLeast';
+type OrderBy = 'games' | 'wins';
+type OrderDir = 'asc' | 'desc';
+
+const COLORS = ['W', 'U', 'B', 'R', 'G', 'C'] as const;
+const PAGE_SIZE = 20;
+
 export default function CommanderPage({ isDark = true }: CommanderPageProps) {
   const [commanders, setCommanders] = useState<CommanderData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCommander, setSelectedCommander] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [colorFilter, setColorFilter] = useState<string[]>([]);
+  const [colorMode, setColorMode] = useState<ColorMode>('exact');
+  const [orderBy, setOrderBy] = useState<OrderBy>('games');
+  const [orderDir, setOrderDir] = useState<OrderDir>('desc');
+  const [page, setPage] = useState(0);
+  
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -30,26 +41,93 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
     }
   }, []);
 
-  const handleSelectCommander = useCallback((commander: string) => {
-    setSelectedCommander(commander);
-    setSearchTerm(commander);
-    setShowDropdown(false);
-  }, []);
-
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    const commanderParam = searchParams.get('commander');
-    if (commanderParam && commanders.length > 0) {
-      const exists = commanders.some(c => c.commander === commanderParam);
-      if (exists) {
-        handleSelectCommander(commanderParam);
-      }
-    }
-  }, [searchParams, commanders, handleSelectCommander]);
+  // Handle modal opening from URL
+  const modalCommanderName = searchParams.get('name');
+  const modalCommander = commanders.find(c => c.commander === modalCommanderName) || null;
 
+  const handleOpenModal = useCallback((commanderName: string) => {
+    setSearchParams({ name: commanderName });
+  }, [setSearchParams]);
+
+  const handleCloseModal = useCallback(() => {
+    setSearchParams({});
+  }, [setSearchParams]);
+
+  // Filter and sort commanders
+  const filteredAndSortedCommanders = useMemo(() => {
+    let result = [...commanders];
+
+    // Search filter
+    if (searchTerm) {
+      result = result.filter(c => 
+        c.commander.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Color filter
+    if (colorFilter.length > 0) {
+      result = result.filter(c => {
+        const commanderColors = (c.colorIdentity || 'C').split('').sort();
+        const filterColors = [...colorFilter].sort();
+
+        if (colorMode === 'exact') {
+          // Exact match: commander colors must exactly match filter
+          return commanderColors.length === filterColors.length && 
+                 commanderColors.every((color, i) => color === filterColors[i]);
+        } else if (colorMode === 'atMost') {
+          // At most: commander must only have colors in the filter (subset)
+          return commanderColors.every(color => filterColors.includes(color));
+        } else {
+          // At least: commander must have all filter colors (can have more)
+          return filterColors.every(color => commanderColors.includes(color));
+        }
+      });
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      const valueA = orderBy === 'games' ? a.games : a.wins;
+      const valueB = orderBy === 'games' ? b.games : b.wins;
+      return orderDir === 'asc' ? valueA - valueB : valueB - valueA;
+    });
+
+    return result;
+  }, [commanders, searchTerm, colorFilter, colorMode, orderBy, orderDir]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAndSortedCommanders.length / PAGE_SIZE);
+  const paginatedCommanders = filteredAndSortedCommanders.slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE
+  );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [searchTerm, colorFilter, colorMode, orderBy, orderDir]);
+
+  const toggleColor = (color: string) => {
+    setColorFilter(prev => 
+      prev.includes(color) 
+        ? prev.filter(c => c !== color)
+        : [...prev, color]
+    );
+  };
+
+  const resetFilters = () => {
+    setSearchTerm('');
+    setColorFilter([]);
+    setColorMode('exact');
+    setOrderBy('games');
+    setOrderDir('desc');
+    setPage(0);
+  };
+
+  // Stats for top section
   const uniqueCount = commanders.length;
 
   const colorIdentityCounts = commanders.reduce((acc, c) => {
@@ -90,25 +168,22 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
     );
   };
 
-  const filteredCommanders = searchTerm
-    ? commanders.filter(c => 
-        c.commander.toLowerCase().includes(searchTerm.toLowerCase())
-      ).slice(0, 10)
-    : commanders.slice(0, 10);
-
-  const selectedCommanderData = commanders.find(c => c.commander === selectedCommander);
+  const getColorSymbolUrl = (color: string) => {
+    return `https://svgs.scryfall.io/card-symbols/${color}.svg`;
+  };
 
   return (
     <div>
+      {/* Top stats section */}
       <div className="grid md:grid-cols-3 gap-4 mb-8">
-         <div className="rounded-lg p-4 text-center flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-           {loading ? (
-             <Spinner size="md" />
-           ) : (
-             <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
-           )}
-           <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
-         </div>
+        <div className="rounded-lg p-4 text-center flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+          {loading ? (
+            <Spinner size="md" />
+          ) : (
+            <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
+          )}
+          <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+        </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Top color identities</h2>
           {loading ? (
@@ -145,105 +220,176 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
         </div>
       </div>
 
-      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-        <h2 className="text-xl font-semibold mb-4">Select Commander</h2>
-        <div className="relative">
+      {/* Sticky filter bar */}
+      <div 
+        className="sticky top-0 z-40 rounded-lg p-4 mb-6 shadow-lg"
+        style={{ backgroundColor: 'var(--bg-secondary)' }}
+      >
+        {/* Search input */}
+        <div className="mb-4">
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setShowDropdown(true);
-            }}
-            onFocus={() => setShowDropdown(true)}
-            disabled={loading}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search commander..."
+            disabled={loading}
+            className="w-full border rounded px-3 py-2"
             style={{ 
               backgroundColor: 'var(--bg-tertiary)', 
               color: 'var(--text-primary)', 
               borderColor: isDark ? '#4b5563' : '#d1d5db' 
             }}
-            className="w-full border rounded px-3 py-2"
           />
-            {showDropdown && filteredCommanders.length > 0 && (
-            <div 
-              className="absolute z-10 w-full rounded mt-1 max-h-48 overflow-y-auto border"
-              style={{ 
-                backgroundColor: 'var(--bg-tertiary)', 
-                borderColor: isDark ? '#4b5563' : '#d1d5db' 
-              }}
-            >
-              {filteredCommanders.map((c, i) => (
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-6">
+          {/* Color filter */}
+          <div className="flex items-center gap-3">
+            <label className="text-lg font-semibold text-purple-400 whitespace-nowrap">
+              Color Filter
+            </label>
+            <div className="flex flex-wrap gap-2 items-center">
+              {COLORS.map(color => (
                 <button
-                  key={i}
-                  type="button"
-                  onClick={() => handleSelectCommander(c.commander)}
-                  className="w-full text-left px-3 py-2 text-sm border-b last:border-b-0"
-                  style={{ color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#e5e7eb' }}
+                  key={color}
+                  onClick={() => toggleColor(color)}
+                  className={`w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                    colorFilter.includes(color) ? 'scale-110 ring-2 ring-purple-400' : 'opacity-60'
+                  }`}
+                  style={{ 
+                    backgroundColor: colorFilter.includes(color) ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                    borderColor: colorFilter.includes(color) ? '#c4b5fd' : isDark ? '#4b5563' : '#d1d5db'
+                  }}
                 >
-                  {c.commander}
+                  <img src={getColorSymbolUrl(color)} alt={color} className="w-6 h-6 mx-auto" />
                 </button>
               ))}
-            </div>
-          )}
-        </div>
-        {selectedCommanderData && (
-          <div className="mt-4 p-4 rounded" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-            <div className="font-semibold text-xl mb-6 flex items-center flex-wrap gap-4">
-              {renderSymbols(selectedCommanderData.colorIdentity)}
-              <span className="text-purple-400">
-                {formatPartners(selectedCommander).split('\n').map((line, i, arr) => (
-                  <span key={i}>
-                    {line}
-                    {i < arr.length - 1 && <br />}
-                  </span>
-                ))}
-              </span>
-              <span style={{ color: 'var(--text-secondary)' }} className="text-base font-normal">
-                {selectedCommanderData.games} games · {selectedCommanderData.wins} wins ({selectedCommanderData.winrate()}%)
-              </span>
-              <span style={{ color: '#fbbf24' }} className="text-base font-normal">
-                {selectedCommanderData.players?.length || 0} players: {selectedCommanderData.players?.join(', ')}
-              </span>
-            </div>
-            <GamesTimeline gameDates={selectedCommanderData.gameDates} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <div className="relative w-96 h-144 mx-auto overflow-hidden">
-                  {selectedCommanderData.imageUris && selectedCommanderData.imageUris.length > 0 && (
-                    selectedCommanderData.imageUris.length === 1 ? (
-                      <img
-                        src={selectedCommanderData.imageUris[0]}
-                        alt={selectedCommanderData.commander}
-                        className="absolute top-0 left-0 w-82 rounded-lg z-0 object-contain"
-                      />
-                    ) : (
-                      <>
-                        <img
-                          src={selectedCommanderData.imageUris[0]}
-                          alt={selectedCommanderData.commander}
-                          className="absolute top-0 left-0 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
-                        />
-                        <img
-                          src={selectedCommanderData.imageUris[1]}
-                          alt={selectedCommanderData.commander}
-                          className="absolute top-10 left-10 w-72 rounded-lg z-0 hover:z-5 transition-all duration-200 object-contain"
-                        />
-                      </>
-                    )
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mb-4" style={{ color: 'var(--text-secondary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                </svg>
-                <p style={{ color: 'var(--text-secondary)' }}>Matchups coming in the future</p>
+              <div className="flex gap-2 ml-2">
+                <button
+                  onClick={() => setColorMode('exact')}
+                  className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                    colorMode === 'exact' ? 'font-bold' : ''
+                  }`}
+                  style={{
+                    backgroundColor: colorMode === 'exact' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                    color: colorMode === 'exact' ? '#c4b5fd' : 'var(--text-secondary)'
+                  }}
+                >
+                  Exact
+                </button>
+                <button
+                  onClick={() => setColorMode('atMost')}
+                  className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                    colorMode === 'atMost' ? 'font-bold' : ''
+                  }`}
+                  style={{
+                    backgroundColor: colorMode === 'atMost' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                    color: colorMode === 'atMost' ? '#c4b5fd' : 'var(--text-secondary)'
+                  }}
+                >
+                  At most
+                </button>
+                <button
+                  onClick={() => setColorMode('atLeast')}
+                  className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                    colorMode === 'atLeast' ? 'font-bold' : ''
+                  }`}
+                  style={{
+                    backgroundColor: colorMode === 'atLeast' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                    color: colorMode === 'atLeast' ? '#c4b5fd' : 'var(--text-secondary)'
+                  }}
+                >
+                  At least
+                </button>
               </div>
             </div>
           </div>
+
+          {/* Sort controls */}
+          <div className="flex items-center gap-3">
+            <label className="text-lg font-semibold text-blue-400 whitespace-nowrap">
+              Sort By
+            </label>
+            <div className="flex flex-wrap gap-2 items-center">
+              <button
+                onClick={() => setOrderBy('games')}
+                className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                  orderBy === 'games' ? 'font-bold' : ''
+                }`}
+                style={{
+                  backgroundColor: orderBy === 'games' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                  color: orderBy === 'games' ? '#60a5fa' : 'var(--text-secondary)'
+                }}
+              >
+                Games
+              </button>
+              <button
+                onClick={() => setOrderBy('wins')}
+                className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                  orderBy === 'wins' ? 'font-bold' : ''
+                }`}
+                style={{
+                  backgroundColor: orderBy === 'wins' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                  color: orderBy === 'wins' ? '#60a5fa' : 'var(--text-secondary)'
+                }}
+              >
+                Wins
+              </button>
+              <button
+                onClick={() => setOrderDir(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md"
+                style={{
+                  backgroundColor: 'var(--bg-tertiary)',
+                  color: 'var(--text-primary)'
+                }}
+              >
+                {orderDir === 'asc' ? '↑ Asc' : '↓ Desc'}
+              </button>
+            </div>
+          </div>
+
+          {/* Reset filters button */}
+          <button
+            onClick={resetFilters}
+            className="px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ml-auto"
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              color: '#ef4444'
+            }}
+          >
+            Reset Filters
+          </button>
+        </div>
+
+        {/* Results count */}
+        <div className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+          Showing {paginatedCommanders.length} of {filteredAndSortedCommanders.length} commanders
+        </div>
+      </div>
+
+      {/* Commander grid */}
+      <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Spinner size="lg" />
+          </div>
+        ) : (
+          <CommanderGrid
+            commanders={paginatedCommanders}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onCommanderClick={handleOpenModal}
+          />
         )}
       </div>
+
+      {/* Commander modal */}
+      <CommanderModal
+        commander={modalCommander}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
