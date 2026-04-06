@@ -84,7 +84,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
   const yellowColor = isDark ? '#fcd34d' : '#b45309';
 
   const handleCommanderClick = (commanderName: string) => {
-    navigate(`/commanders?commander=${encodeURIComponent(commanderName)}`);
+    navigate(`/commanders?name=${encodeURIComponent(commanderName)}`);
   };
 
   const handlePlayerClick = (playerName: string) => {
