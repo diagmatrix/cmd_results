@@ -24,5 +24,5 @@ SELECT
         'https://cards.scryfall.io/art_crop/front/e/c/ec8e4142-7c46-4d2f-aaa6-6410f323d9f0.jpg?1561851198' -- Totally Lost
     ) AS image_uri
 FROM player_stats ps
-LEFT JOIN public.active_players ap
+LEFT JOIN users.active_players ap
     ON ps.player = ap.name;
