@@ -20,7 +20,13 @@ export interface Game {
   player_data: PlayerData[];
   winner: string;
   starting_player: string;
-  created_at: string;
+}
+
+export interface GameFormData {
+  playerData: PlayerData[];
+  winner: string;
+  startingPlayer: string;
+  gameDate: string;
 }
 
 interface GameDates {
@@ -165,6 +171,10 @@ export class GameStats {
   }
 
   colorIdentitySymbolUrls(): string[] {
+    if (this.getType() === 'player') {
+      return [];
+    }
+
     const colors = this.colorIdentity || 'C';
     const [, sortedSymbols] = getColorName(colors);
     return sortedSymbols

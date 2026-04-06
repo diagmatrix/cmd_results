@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config';
-import { type Game, GameStats, Stats, type PlayerData, type CommanderName, CommanderData } from './model.ts';
+import { type Game, GameStats, Stats, type CommanderName, CommanderData, type GameFormData } from './model.ts';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -111,12 +111,7 @@ export async function fetchAllGames(): Promise<Game[]> {
   return games || [];
 }
 
-export interface GameFormData {
-  playerData: PlayerData[];
-  winner: string;
-  startingPlayer: string;
-  gameDate: string;
-}
+
 
 export async function insertGame(gameData: GameFormData): Promise<{ error: Error | null }> {
   const gameId = crypto.randomUUID();
