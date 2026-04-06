@@ -3,6 +3,7 @@ import { GameForm } from './GameForm';
 import { fetchAllGames } from '../lib/supabase';
 import { type Game } from '../lib/model';
 import { escapeHtml } from '../lib/utils';
+import { Spinner } from './Spinner';
 
 interface GamesPageProps {
   isDark?: boolean;
@@ -190,7 +191,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
               onChange={(e) => handleFilterChange('commander', e.target.value)}
               disabled={loading}
               style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
-              className="border rounded px-3 py-2 min-w-[140px]"
+              className="border rounded px-3 py-2 min-w-[140px] max-w-[250px] truncate"
             >
               <option value="">All</option>
               {uniqueCommanders.map(c => (
@@ -277,7 +278,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                    Loading games...
+                    <Spinner />
                   </td>
                 </tr>
               ) : paginatedGames.length === 0 ? (
