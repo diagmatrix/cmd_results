@@ -22,7 +22,7 @@ players AS (
     SELECT
         commander,
         array_agg(DISTINCT player) AS players
-    FROM public.players_and_commanders
+    FROM public.games
     GROUP BY commander
 )
 SELECT
