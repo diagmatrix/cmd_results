@@ -1,0 +1,4 @@
+requests
+ijson
+python-dotenv
+supabase
