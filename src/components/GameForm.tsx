@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { insertGame, type GameFormData, fetchCommanderNames } from '../lib/supabase';
+import { insertGame, fetchCommanderNames } from '../lib/supabase';
+import { type GameFormData } from '../lib/model';
 import { escapeHtml } from '../lib/utils';
 import type { CommanderName } from '../lib/model';
 
