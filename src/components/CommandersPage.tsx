@@ -4,6 +4,7 @@ import { fetchAllCommanders } from '../lib/supabase';
 import { CommanderData } from '../lib/model';
 import { formatPartners } from '../lib/utils';
 import { GamesTimeline } from './GamesTimeline';
+import { Spinner } from './Spinner';
 
 interface CommanderPageProps {
   isDark?: boolean;
@@ -97,46 +98,52 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
 
   const selectedCommanderData = commanders.find(c => c.commander === selectedCommander);
 
-  if (loading) {
-    return (
-      <div className="text-center py-8" style={{ color: 'var(--text-primary)' }}>
-        Loading...
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         <div className="rounded-lg p-4 text-center flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
-          <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+          {loading ? (
+            <Spinner size="sm" />
+          ) : (
+            <>
+              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
+              <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+            </>
+          )}
         </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Top color identities</h2>
-          <div className="space-y-2">
-            {topColorIdentities.map((item, i) => (
-              <div key={i} className="flex justify-between items-center">
-                <div className="w-20 text-center mr-1" style={{ color: 'var(--text-primary)' }}>{renderSymbols(item.colors)}</div>
-                <div className="w-20" style={{ color: 'var(--text-primary)' }}>{item.name}</div>
-                <div className="flex-1" />
-                <div style={{ color: 'var(--text-secondary)' }}>{item.count}</div>
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <Spinner size="sm" />
+          ) : (
+            <div className="space-y-2">
+              {topColorIdentities.map((item, i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <div className="w-20 text-center mr-1" style={{ color: 'var(--text-primary)' }}>{renderSymbols(item.colors)}</div>
+                  <div className="w-20" style={{ color: 'var(--text-primary)' }}>{item.name}</div>
+                  <div className="flex-1" />
+                  <div style={{ color: 'var(--text-secondary)' }}>{item.count}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top commanders by games</h2>
-          <div className="space-y-2">
-            {topCommanders.map((c, i) => (
-              <div key={i} className="flex justify-between items-center">
-                <span className="truncate" style={{ color: 'var(--text-primary)' }} title={c.name}>
-                  {c.name}
-                </span>
-                <span style={{ color: 'var(--text-secondary)' }}>{c.games}</span>
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <Spinner size="sm" />
+          ) : (
+            <div className="space-y-2">
+              {topCommanders.map((c, i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <span className="truncate" style={{ color: 'var(--text-primary)' }} title={c.name}>
+                    {c.name}
+                  </span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{c.games}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -151,6 +158,7 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
               setShowDropdown(true);
             }}
             onFocus={() => setShowDropdown(true)}
+            disabled={loading}
             placeholder="Search commander..."
             style={{ 
               backgroundColor: 'var(--bg-tertiary)', 
