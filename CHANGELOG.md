@@ -4,7 +4,8 @@ All notable changes to the Commander Game Tracker will be documented in this fil
 
 ## v1.0.1 - 2026-04-06
 
-- Bug fixes
+- Improved loading experience: stat cards now show their labels while data is loading, making it clearer what information is being fetched
+- Game fetching bug fix
 
 ## v1.0.0 - 2026-04-02
 
