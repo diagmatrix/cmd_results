@@ -6,7 +6,6 @@
 
 * **Record Games:** Input game results, including the winner, starting player, and the commanders played.
 * **Track Statistics:** View comprehensive stats and win rates for players, specific commanders, and player-commander combos.
-* **Modern UI:** Built with React 19 and styled with Tailwind CSS for a dark-themed, responsive experience.
 
 ## Tech Stack
 
@@ -39,6 +38,13 @@
 3. **Database Setup:**
    Apply the database schema by executing the SQL files located in the `db/` directory (tables and views) within your Supabase Dashboard's SQL Editor.
 
+   Install the python dependencies for the functions. It is recommended to use a local Python env instead of the system env:
+    ```bash
+    pip install -r db/functions/requirements.txt
+    ```
+
+   Run the python scripts inside `db/functions` to populate the database with cards.
+
 4. **Start the Development Server:**
    ```bash
    npm run dev
@@ -62,10 +68,7 @@
 * `src/`: React frontend source code, including components (`src/components/`) and utilities/API clients (`src/lib/`).
 * `db/`: Database schema definitions.
   * `db/tables/` and `db/views/`: SQL schemas.
-  * `db/functions/`: Python scripts for batch database operations. To run these, install their dependencies:
-    ```bash
-    pip install -r db/functions/requirements.txt
-    ```
+  * `db/functions/`: Python scripts for batch database operations.
 
 ## License
 
