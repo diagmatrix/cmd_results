@@ -148,36 +148,30 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
   return (
     <>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          {loadingStats ? (
-            <Spinner size="sm" />
-          ) : (
-            <>
-              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Total games recorded</div>
-            </>
-          )}
-        </div>
-        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          {loadingStats ? (
-            <Spinner size="sm" />
-          ) : (
-            <>
-              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Unique players</div>
-            </>
-          )}
-        </div>
-        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          {loadingStats ? (
-            <Spinner size="sm" />
-          ) : (
-            <>
-              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
-            </>
-          )}
-        </div>
+       <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+           {loadingStats ? (
+             <Spinner size="sm" />
+           ) : (
+             <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
+           )}
+           <div style={{ color: 'var(--text-secondary)' }}>Total games recorded</div>
+         </div>
+         <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+           {loadingStats ? (
+             <Spinner size="sm" />
+           ) : (
+             <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
+           )}
+           <div style={{ color: 'var(--text-secondary)' }}>Unique players</div>
+         </div>
+         <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+           {loadingStats ? (
+             <Spinner size="sm" />
+           ) : (
+             <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
+           )}
+           <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+         </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">

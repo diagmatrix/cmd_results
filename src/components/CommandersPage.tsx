@@ -101,16 +101,14 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
   return (
     <div>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
-        <div className="rounded-lg p-4 text-center flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-          {loading ? (
-            <Spinner size="sm" />
-          ) : (
-            <>
-              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
-              <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
-            </>
-          )}
-        </div>
+         <div className="rounded-lg p-4 text-center flex flex-col justify-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+           {loading ? (
+             <Spinner size="sm" />
+           ) : (
+             <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{uniqueCount}</div>
+           )}
+           <div style={{ color: 'var(--text-secondary)' }}>Unique commanders</div>
+         </div>
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Top color identities</h2>
           {loading ? (
