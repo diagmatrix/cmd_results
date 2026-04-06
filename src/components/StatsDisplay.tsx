@@ -150,7 +150,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
       <div className="grid md:grid-cols-3 gap-4 mb-8">
        <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
            {loadingStats ? (
-             <Spinner size="sm" />
+             <Spinner size="md" />
            ) : (
              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.games}</div>
            )}
@@ -158,7 +158,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
          </div>
          <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
            {loadingStats ? (
-             <Spinner size="sm" />
+             <Spinner size="md" />
            ) : (
              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.players}</div>
            )}
@@ -166,7 +166,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
          </div>
          <div className="rounded-lg p-4 text-center" style={{ backgroundColor: 'var(--bg-secondary)' }}>
            {loadingStats ? (
-             <Spinner size="sm" />
+             <Spinner size="md" />
            ) : (
              <div className="text-4xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{safeStats.commanders}</div>
            )}
@@ -178,7 +178,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-blue-400 text-center">Top players by games played</h2>
           {loadingPlayers ? (
-            <Spinner size="sm" />
+            <Spinner size="lg" />
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {players.map(renderPlayerStatCard)}
@@ -188,7 +188,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-purple-400 text-center">Most played commanders</h2>
           {loadingCommandersByGames ? (
-            <Spinner size="sm" />
+            <Spinner size="lg" />
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {commandersByGames.map(renderCommanderStatCard)}
@@ -198,7 +198,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
         <div className="rounded-lg p-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <h2 className="text-lg font-semibold mb-3 text-green-400 text-center">Best performing commanders</h2>
           {loadingCommandersByWins ? (
-            <Spinner size="sm" />
+            <Spinner size="lg" />
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {commandersByWins.map(renderCommanderStatCard)}

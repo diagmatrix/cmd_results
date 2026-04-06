@@ -278,7 +278,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
               {loading ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-8 text-center" style={{ color: 'var(--text-secondary)' }}>
-                    <Spinner />
+                    <Spinner className="py-8" />
                   </td>
                 </tr>
               ) : paginatedGames.length === 0 ? (
