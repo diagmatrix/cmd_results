@@ -1,3 +1,5 @@
+import { MANA_SYMBOLS } from './utils';
+
 export interface PlayerData {
   player: string;
   commander: string;
@@ -68,15 +70,6 @@ const COLOR_NAMES: Record<string, string> = {
   'C': 'Colorless',
 };
 
-const MANA_SYMBOLS: Record<string, string> = {
-  'W': 'https://svgs.scryfall.io/card-symbols/W.svg',
-  'U': 'https://svgs.scryfall.io/card-symbols/U.svg',
-  'B': 'https://svgs.scryfall.io/card-symbols/B.svg',
-  'R': 'https://svgs.scryfall.io/card-symbols/R.svg',
-  'G': 'https://svgs.scryfall.io/card-symbols/G.svg',
-  'C': 'https://svgs.scryfall.io/card-symbols/C.svg',
-};
-
 function getColorName(color: string): [string, string] {
   const sorted = color.split('').sort().join('');
 
@@ -100,8 +93,9 @@ export class CommanderData {
   gameDates: GameDates[];
   colorIdentity?: string;
   imageUris?: string[];
+  cardIds?: string[];
 
-  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, players: string[], game_dates: GameDates[], color_identity?: string, image_uris?: string[]) {
+  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, players: string[], game_dates: GameDates[], color_identity?: string, image_uris?: string[], card_ids?: string[]) {
     this.commander = commander;
     this.games = games_played;
     this.wins = games_won;
@@ -111,6 +105,7 @@ export class CommanderData {
     this.gameDates = game_dates;
     this.colorIdentity = color_identity;
     this.imageUris = image_uris;
+    this.cardIds = card_ids;
   }
 
   winrate(): string {
@@ -194,4 +189,20 @@ export class Stats {
     this.players = players;
     this.commanders = commanders;
   }
+}
+
+export function getScryfallURL(card: Object): string {
+  // @ts-ignore
+  const url = card?.scryfall_uri || card?.card_faces?.[0]?.scryfall_uri;
+  if (url && typeof url === 'string') {
+    return url;
+  }
+
+  const name = card?.name || card?.card_faces?.[0]?.name;
+  if (name && typeof name === 'string') {
+    const encodedName = encodeURIComponent(name);
+    return `https://scryfall.com/search?q=${encodedName}`;
+  }
+
+  return 'https://scryfall.com/';
 }

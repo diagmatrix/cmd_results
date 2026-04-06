@@ -8,13 +8,15 @@ WITH possible_commanders AS (
             WHEN image_uri IS NOT NULL 
                 THEN ARRAY[image_uri]
             ELSE ARRAY[]::text[]
-        END AS image_uris
+        END AS image_uris,
+        ARRAY[id] AS card_ids
     FROM public.available_commanders
     UNION ALL
     SELECT
         name,
         color_identity,
-        image_uri AS image_uris
+        image_uri AS image_uris,
+        ARRAY[first_id, second_id] AS card_ids
     FROM public.partners
 ),
 played_commanders AS (
@@ -26,7 +28,8 @@ SELECT
     pos_cmd.name,
     ply_cmd.name IS NOT NULL AS has_been_played,
     pos_cmd.color_identity,
-    pos_cmd.image_uris
+    pos_cmd.image_uris,
+    pos_cmd.card_ids
 FROM possible_commanders pos_cmd
 LEFT JOIN played_commanders ply_cmd
     ON pos_cmd.name = ply_cmd.name

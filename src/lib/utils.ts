@@ -17,6 +17,20 @@ export function parseDateString(dateStr: string): Date {
   return new Date(year, month - 1, day); // month is 0-indexed
 }
 
+// Mana symbol URLs from Scryfall
+export const MANA_SYMBOLS: Record<string, string> = {
+  'W': 'https://svgs.scryfall.io/card-symbols/W.svg',
+  'U': 'https://svgs.scryfall.io/card-symbols/U.svg',
+  'B': 'https://svgs.scryfall.io/card-symbols/B.svg',
+  'R': 'https://svgs.scryfall.io/card-symbols/R.svg',
+  'G': 'https://svgs.scryfall.io/card-symbols/G.svg',
+  'C': 'https://svgs.scryfall.io/card-symbols/C.svg',
+};
+
+export function getManaSymbolUrl(color: string): string | undefined {
+  return MANA_SYMBOLS[color];
+}
+
 // MTG color identity to CSS color mapping
 // Dark mode uses muted tones, light mode uses softer pastels
 const COLOR_MAP_DARK: Record<string, string> = {
@@ -90,4 +104,12 @@ export function getColorIdentityGradient(colorIdentity: string | undefined, isDa
   });
 
   return `linear-gradient(60deg, ${stops.join(', ')})`;
+}
+
+export function getEDHRecUrl(commanderName: string): string {
+  const withoutPartners = commanderName.replace(' | ', ' ');
+  const withoutWhitespace = withoutPartners.replace(/\s+/g, '-');
+  const withoutNonAlpha = withoutWhitespace.replace(/[^a-zA-Z0-9-]/g, '');
+  const lowercased = withoutNonAlpha.toLowerCase();
+  return `https://edhrec.com/commanders/${lowercased}`;
 }
