@@ -2,6 +2,19 @@
 
 All notable changes to the Commander Game Tracker will be documented in this file.
 
+## v1.1.0 - 2026-04-08
+
+- Add head-to-head matchup tracking to see player performance against specific opponents
+- Improve app security by preventing unauthorized game submissions
+- Enhance card image loading with better support for two-sided Magic cards
+- Redesign commander gallery with visual grid, filtering options, and detailed card information
+- Improve commander detail pages with better navigation and presentation
+- Refactor backend database scripts for consistency and easier maintenance
+- Clean up code to remove unnecessary functions and improve overall code quality
+- Standardize configuration settings for better consistency
+- Improve error handling when submitting games
+- Various performance and stability improvements
+
 ## v1.0.1 - 2026-04-06
 
 - Improved loading experience: stat cards now show their labels while data is loading, making it clearer what information is being fetched
