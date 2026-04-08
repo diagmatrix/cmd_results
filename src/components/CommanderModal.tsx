@@ -20,7 +20,7 @@ export function CommanderModal({ commander, onClose }: CommanderModalProps) {
           commander.cardIds.map(async (id) => {
             const card = await fetchCard(id);
             return {
-              name: (card as any)?.name || 'Unknown Card',
+              name: card?.name || 'Unknown Card',
               url: getScryfallURL(card)
             };
           })

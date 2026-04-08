@@ -191,8 +191,8 @@ export class Stats {
   }
 }
 
-export function getScryfallURL(card: Object): string {
-  // @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getScryfallURL(card: any): string {
   const url = card?.scryfall_uri || card?.card_faces?.[0]?.scryfall_uri;
   if (url && typeof url === 'string') {
     return url;

@@ -129,7 +129,7 @@ serve(async (req) => {
 
     const game_id = crypto.randomUUID()
 
-    const rows = gameData.playerData.map((player: any) => ({
+    const rows = gameData.playerData.map((player: { player: string; commander: string }) => ({
       game_id,
       game_date: gameData.gameDate,
       player: player.player,
