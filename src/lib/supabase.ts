@@ -125,9 +125,11 @@ export async function insertGame(gameData: GameFormData): Promise<{ error: Error
     if (!response.ok) {
       if (response.status === 429) {
         // Rate limit exceeded
+        const retryHeader = response.headers.get('Retry-After');
         const errorData = await response.json();
-        const retryAfter = errorData.retryAfter || 60;
-        return { error: new Error(`Rate limit exceeded. Try again in ${retryAfter} seconds.`) };
+        const retryAfter = parseInt(retryHeader || '') || errorData.retryAfterSeconds || 3600;
+        const minutes = Math.ceil(retryAfter / 60);
+        return { error: new Error(`Rate limit exceeded. Try again in ${minutes} minute${minutes !== 1 ? 's' : ''}.`) };
       }
       // Other HTTP errors
       const errorData = await response.json();
