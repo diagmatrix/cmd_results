@@ -117,7 +117,7 @@ export function CommanderModal({ commander, onClose }: CommanderModalProps) {
                   href={getEDHRecUrl(commander.commander)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="grid grid-cols-[auto_1fr] items-center gap-3 px-4 py-3 border-2 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white rounded-lg transition-all duration-200 text-base font-medium"
+                  className="grid grid-cols-[auto_1fr] items-center gap-3 px-4 py-3 bg-black text-white border-2 border-black hover:bg-gray-800 hover:text-white rounded-lg transition-all duration-200 text-base font-medium"
                 >
                   <img src="https://edhrec.com/favicon.ico" alt="" className="w-6 h-6" />
                   <span className="text-center">See decks in EDHRec</span>
@@ -128,7 +128,7 @@ export function CommanderModal({ commander, onClose }: CommanderModalProps) {
                     href={card.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="grid grid-cols-[auto_1fr] items-center gap-3 px-4 py-3 border-2 border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white rounded-lg transition-all duration-200 text-base font-medium"
+                    className="grid grid-cols-[auto_1fr] items-center gap-3 px-4 py-3 bg-purple-500 text-white border-2 border-purple-500 hover:bg-purple-600 hover:text-white rounded-lg transition-all duration-200 text-base font-medium"
                   >
                     <img src="/cmd_results/scryfall-icon.svg" alt="" className="w-6 h-6" />
                     <span className="text-center">{card.name}</span>
