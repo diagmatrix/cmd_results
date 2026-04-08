@@ -68,11 +68,16 @@ serve(async (req) => {
     if (countError) throw countError
 
     if ((count || 0) >= MAX_REQUESTS) {
+      const retryAfterSeconds = WINDOW_HOURS * 60 * 60
       return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded' }),
+        JSON.stringify({ error: 'Rate limit exceeded', retryAfterSeconds }),
         {
           status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': String(retryAfterSeconds)
+          }
         }
       )
     }
