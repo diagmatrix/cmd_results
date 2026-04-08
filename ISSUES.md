@@ -5,7 +5,6 @@ This document contains a full architectural review and a sequential, file-by-fil
 ## 1. Overall Architectural Review
 
 ### 🔴 CRITICAL (Block merge)
-- **Database Security**: The Row Level Security (RLS) policy on the `games` table allows unauthenticated inserts (`FOR INSERT WITH CHECK (true)`). Since the Supabase URL and Anon key are public, a malicious actor could script a flood of bogus data, destroying the integrity of the tracking system and potentially racking up database costs.
 - **Client-Side Data Over-fetching**: The architecture currently fetches entire tables (`fetchRecentGames` without proper server-side pagination for all games, `fetchAllCommanders`). As the playgroup records more games, this will result in massive payloads, slow rendering, and excessive memory use on client devices. Pagination, virtualization, and infinite scrolling must be implemented.
 
 ### 🟡 IMPORTANT (Requires discussion)
@@ -41,7 +40,7 @@ This document contains a full architectural review and a sequential, file-by-fil
 - **🟡 IMPORTANT**: `insertGame` uses `crypto.randomUUID()` client-side. Rely on Postgres `gen_random_uuid()` as defined in the schema to ensure database integrity.
 
 **`src/lib/utils.ts`**
-- **🔴 CRITICAL**: Contains an `escapeHtml` implementation using `document.createElement`. This is an anti-pattern in React because React automatically escapes text in JSX (`{variable}`). Using `escapeHtml` risks double-escaping characters (e.g., displaying `&amp;`).
+- **🟢 FIXED**: Removed the `escapeHtml` implementation which was an anti-pattern in React. React automatically escapes text in JSX (`{variable}`), so the custom function was unnecessary and risked double-escaping characters.
 
 **`src/components/App.css` & `src/index.css`**
 - **🟡 IMPORTANT**: Should only contain standard Tailwind directives (`@tailwind base`, etc.). Any custom CSS variables (`--bg-primary`) should be migrated into the `tailwind.config.js` theme extension.
