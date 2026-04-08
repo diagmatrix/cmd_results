@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { type GameStats, Stats } from '../lib/model';
-import { escapeHtml, formatPartners, getColorIdentityGradient } from '../lib/utils';
+import { formatPartners, getColorIdentityGradient } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlayers, fetchCommanderStats, fetchStats } from '../lib/supabase';
 import { Spinner } from './Spinner';
@@ -116,7 +116,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
         backgroundPosition: 'center'
       }}
     >
-      <div className="font-semibold" style={{ color: player.imageUri ? '#f9fafb' : 'var(--text-primary)' }}>{escapeHtml(player.player!)}</div>
+      <div className="font-semibold" style={{ color: player.imageUri ? '#f9fafb' : 'var(--text-primary)' }}>{player.player!}</div>
       <div className="text-sm" style={{ color: player.imageUri ? '#c4b5fd' : purpleColor }}>{player.uniqueCommanders} unique commanders</div>
       <div className="text-2xl font-bold" style={{ color: player.imageUri ? '#f9fafb' : (isDark ? '#f9fafb' : '#111827') }}>{player.wins}/{player.games}</div>
       <div className="text-sm" style={{ color: player.imageUri ? '#d1d5db' : 'var(--text-secondary)' }}>{player.winrate()}% win rate</div>
@@ -135,7 +135,7 @@ export function StatsDisplay({ isDark = true, refreshTrigger = 0 }: StatsDisplay
       className="rounded p-3 flex flex-col justify-center text-left cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-gray-900"
       style={{ background: getColorIdentityGradient(commander.colorIdentity, isDark) }}
     >
-      <div className="font-semibold" style={{ whiteSpace: 'pre-line', color: purpleColor }}>{formatPartners(escapeHtml(commander.commander!))}</div>
+      <div className="font-semibold" style={{ whiteSpace: 'pre-line', color: purpleColor }}>{formatPartners(commander.commander!)}</div>
       {renderColorSymbols(commander)}
       <div className="text-2xl font-bold" style={{ color: isDark ? '#f9fafb' : '#111827' }}>{commander.wins}/{commander.games}</div>
       <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{commander.winrate()}% win rate</div>

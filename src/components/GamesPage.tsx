@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { GameForm } from './GameForm';
 import { fetchAllGames } from '../lib/supabase';
 import { type Game } from '../lib/model';
-import { escapeHtml } from '../lib/utils';
 import { Spinner } from './Spinner';
 
 interface GamesPageProps {
@@ -165,7 +164,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
             >
               <option value="">All</option>
               {uniqueWinners.map(w => (
-                <option key={w} value={w}>{escapeHtml(w)}</option>
+                <option key={w} value={w}>{w}</option>
               ))}
             </select>
           </div>
@@ -180,7 +179,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
             >
               <option value="">All</option>
               {uniquePlayers.map(p => (
-                <option key={p} value={p}>{escapeHtml(p)}</option>
+                <option key={p} value={p}>{p}</option>
               ))}
             </select>
           </div>
@@ -195,7 +194,7 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
             >
               <option value="">All</option>
               {uniqueCommanders.map(c => (
-                <option key={c} value={escapeHtml(c)}>{escapeHtml(c)}</option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
@@ -302,18 +301,18 @@ export default function GamesPage({ isDark = true }: GamesPageProps) {
                         </>
                       )}
                       <td className="px-3 py-2" style={{ color: 'var(--text-primary)' }}>
-                        {escapeHtml(player.player)}
+                        {player.player}
                       </td>
                       <td className="px-3 py-2" style={{ color: isDark ? '#c4b5fd' : '#7c3aed' }}>
-                        {escapeHtml(player.commander)}
+                        {player.commander}
                       </td>
                       {playerIndex === 0 && (
                         <>
                           <td className="px-3 py-2 font-semibold" rowSpan={game.player_data.length} style={{ color: isDark ? '#4ade80' : '#15803d' }}>
-                            {escapeHtml(game.winner)}
+                            {game.winner}
                           </td>
                           <td className="px-3 py-2" rowSpan={game.player_data.length} style={{ color: isDark ? '#fcd34d' : '#b45309' }}>
-                            {game.starting_player ? escapeHtml(game.starting_player) : '-'}
+                            {game.starting_player ? game.starting_player : '-'}
                           </td>
                         </>
                       )}
