@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config';
-import { type Game, GameStats, Stats, type CommanderName, CommanderData, type GameFormData } from './model.ts';
+import { type Game, GameStats, Stats, type CommanderName, CommanderData, type GameFormData, type CommanderMatchup } from './model.ts';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -184,7 +184,9 @@ export async function fetchAllCommanders(): Promise<CommanderData[]> {
     c.game_dates,
     c.color_identity,
     c.image_uris,
-    c.card_ids
+    c.card_ids,
+    c.tier,
+    c.winrate_delta
   ));
 }
 
@@ -202,4 +204,18 @@ export async function fetchCard(cardId: string): Promise<any> {
   }
 
   return data?.[0]?.raw_card || {};
+}
+
+export async function fetchCommanderMatchups(commander: string): Promise<CommanderMatchup[]> {
+  const { data, error } = await supabase
+    .from('commander_matchups')
+    .select('*')
+    .eq('commander', commander)
+    .order('games_together', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching matchups:', error);
+    return [];
+  }
+  return data || [];
 }
