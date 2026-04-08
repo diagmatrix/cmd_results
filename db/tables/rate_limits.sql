@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS rate_limits (
+  id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  ip TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rate_limits_ip ON rate_limits (ip);
+
+ALTER TABLE rate_limits ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "No access to rate limits" ON rate_limits FOR ALL USING (false) WITH CHECK (false);

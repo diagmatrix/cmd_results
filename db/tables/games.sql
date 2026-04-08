@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS public.games (
 
 ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can read games" ON public.games FOR SELECT USING (true);
-CREATE POLICY "Anyone can insert games" ON public.games FOR INSERT WITH CHECK (true);
+CREATE POLICY "Service role can insert" ON public.games FOR INSERT TO service_role WITH CHECK (true);
