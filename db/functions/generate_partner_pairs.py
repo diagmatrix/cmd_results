@@ -1,11 +1,19 @@
-import supabase
-from os import environ as env
-from typing import List, TypedDict
-from dotenv import load_dotenv
+"""Generate partner pairs for Magic: The Gathering commanders."""
 
-load_dotenv()
+import itertools
+import logging
+from typing import List, TypedDict
+
+import supabase
+
+from common import setup, get_supabase_client
+
+setup()
+
 
 class AvailableCommander(TypedDict):
+    """Commander card from available_commanders table."""
+
     id: str
     name: str
     set_code: str
@@ -15,14 +23,20 @@ class AvailableCommander(TypedDict):
     keywords: List[str]
     type_line: str
 
+
 class PartnerCategories(TypedDict):
+    """Categories of partner cards."""
+
     GENERIC: List[AvailableCommander]
     FRIENDS_FOREVER: List[AvailableCommander]
     BACKGROUND: List[AvailableCommander]
     DOCTOR_COMPANION: List[AvailableCommander]
     SPECIFIC: List[AvailableCommander]
 
+
 class PartnerPair(TypedDict):
+    """Partner pair record."""
+
     first_id: str
     second_id: str
     name: str
@@ -30,46 +44,38 @@ class PartnerPair(TypedDict):
     image_uri: List[str]
     partner_type: str
 
-def get_client() -> supabase.Client:
-    supabase_url = env.get('SUPABASE_URL')
-    supabase_key = env.get('SUPABASE_KEY')
-
-    if not supabase_url or not supabase_key:
-        missing_vars = []
-        if not supabase_url:
-            missing_vars.append('SUPABASE_URL')
-        if not supabase_key:
-            missing_vars.append('SUPABASE_KEY')
-        missing = ', '.join(missing_vars)
-        raise RuntimeError(f"Missing required environment variable(s): {missing}. "
-                           f"Please set them before running this script.")
-
-    return supabase.create_client(
-        supabase_url=supabase_url,
-        supabase_key=supabase_key,
-    )
 
 def get_cards(client: supabase.Client) -> List[AvailableCommander]:
+    """Fetch all available commanders from database in 1000-card batches."""
     cards = []
     current = -1
     fetch_more = True
     while fetch_more:
-        print(f"Fetching cards from {current + 2} to {current + 1001}... ", end="")
-        response = client.from_('available_commanders').select('*').range(current + 1, current + 1000).execute()
+        logging.info("Fetching cards from %d to %d...", current + 2, current + 1001)
+        response = (
+            client.from_("available_commanders")
+            .select("*")
+            .range(current + 1, current + 1000)
+            .execute()
+        )
         total = response.count or len(response.data)
         if total == 0:
-            print("NO CARDS FOUND, STOPPING.")
+            logging.info("NO CARDS FOUND, STOPPING.")
             fetch_more = False
         else:
             cards.extend(response.data)
-            print(f"RETRIEVED {total} CARDS.")
+            logging.info("RETRIEVED %d CARDS.", total)
 
             current += 1000
             fetch_more = total == 1000
 
     return cards
 
-def discard_non_partner_cards(cards: List[AvailableCommander]) -> List[AvailableCommander]:
+
+def discard_non_partner_cards(
+    cards: List[AvailableCommander],
+) -> List[AvailableCommander]:
+    """Filter cards to only partner-eligible ones."""
     partner_cards = []
     for card in cards:
         if "Partner" in card["keywords"]:
@@ -87,49 +93,64 @@ def discard_non_partner_cards(cards: List[AvailableCommander]) -> List[Available
         if card.get("oracle_text") and "Doctor's companion" in card["oracle_text"]:
             partner_cards.append(card)
             continue
-    
+
     return partner_cards
 
-def categorize_partners(partner_cards: List[AvailableCommander]) -> PartnerCategories:
+
+def categorize_partners(
+    partner_cards: List[AvailableCommander],
+) -> PartnerCategories:
+    """Categorize partner cards by partner type."""
     categories: PartnerCategories = {
-        'GENERIC': [],
-        'FRIENDS_FOREVER': [],
-        'BACKGROUND': [],
-        'DOCTOR_COMPANION': [],
-        'SPECIFIC': []
+        "GENERIC": [],
+        "FRIENDS_FOREVER": [],
+        "BACKGROUND": [],
+        "DOCTOR_COMPANION": [],
+        "SPECIFIC": [],
     }
 
     for card in partner_cards:
         if "Partner with" in card["keywords"]:
-            categories['SPECIFIC'].append(card)
-            print(f"Adding {card['name']} to SPECIFIC PARTNERS")
-        elif "Time Lord Doctor" in card["type_line"] or "Doctor's companion" in (card.get("oracle_text") or ""):
-            categories['DOCTOR_COMPANION'].append(card)
-            print(f"Adding {card['name']} to DOCTOR WHO PARTNERS")
-        elif "Background" in card["type_line"] or "Choose a background" in card["keywords"]:
-            categories['BACKGROUND'].append(card)
-            print(f"Adding {card['name']} to CHOOSE A BACKGROUND PARTNERS")
+            categories["SPECIFIC"].append(card)
+            logging.info("Adding %s to SPECIFIC PARTNERS", card["name"])
+        elif "Time Lord Doctor" in card["type_line"] or "Doctor's companion" in (
+            card.get("oracle_text") or ""
+        ):
+            categories["DOCTOR_COMPANION"].append(card)
+            logging.info("Adding %s to DOCTOR WHO PARTNERS", card["name"])
+        elif (
+            "Background" in card["type_line"]
+            or "Choose a background" in card["keywords"]
+        ):
+            categories["BACKGROUND"].append(card)
+            logging.info("Adding %s to CHOOSE A BACKGROUND PARTNERS", card["name"])
         elif "Partner—Friends forever" in (card.get("oracle_text") or ""):
-            categories['FRIENDS_FOREVER'].append(card)
-            print(f"Adding {card['name']} to FRIENDS FOREVER")
+            categories["FRIENDS_FOREVER"].append(card)
+            logging.info("Adding %s to FRIENDS FOREVER", card["name"])
         else:
-            categories['GENERIC'].append(card)
-            print(f"Adding {card['name']} to GENERIC PARTNERS")
+            categories["GENERIC"].append(card)
+            logging.info("Adding %s to GENERIC PARTNERS", card["name"])
 
     return categories
 
+
 def parse_color_identity(color_identity_first: str, color_identity_second: str) -> str:
+    """Merge two color identities."""
     if color_identity_first == color_identity_second:
         return color_identity_first
     if color_identity_first in ("", "C"):
         return color_identity_second
     if color_identity_second in ("", "C"):
         return color_identity_first
-    
+
     combined = set(color_identity_first + color_identity_second)
     return "".join(c for c in "WUBRG" if c in combined)
 
-def process_specific_partners(cards: List[AvailableCommander], partner_type: str) -> List[PartnerPair]:
+
+def process_specific_partners(
+    cards: List[AvailableCommander], partner_type: str
+) -> List[PartnerPair]:
+    """Create partner pairs for 'Partner with' specific commanders."""
     pairs = []
     unpaired = {}
     for card in cards:
@@ -140,53 +161,63 @@ def process_specific_partners(cards: List[AvailableCommander], partner_type: str
                 first, second = card, partner
             else:
                 first, second = partner, card
-            pairs.append({
-                "first_id": first["id"],
-                "second_id": second["id"],
-                "name": f"{first['name']} | {second['name']}",
-                "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
-                "image_uri": [first["image_uri"], second["image_uri"]],
-                "partner_type": partner_type
-            })
-            del unpaired[card["name"]]
-        else:
-            partner = card["oracle_text"].split("Partner with ")[-1].split("\n")[0].split(" (")[0].strip()  # Jank but works
-            unpaired[partner] = card
-
-    if len(unpaired) > 0:
-        print(f"WARNING: {len(unpaired)} unpaired specific partners found:")
-        for partner_name, card in unpaired.items():
-            print(f" - {card['name']} (expects partner named '{partner_name}')")
-
-    return pairs
-
-def process_generic_partner(cards: List[AvailableCommander], partner_type: str) -> List[PartnerPair]:
-    pairs = []
-    already_paired = set()
-    for card in cards:
-        for base_card in cards:
-            if base_card["id"] == card["id"] or base_card["id"] + card["id"] in already_paired or card["id"] + base_card["id"] in already_paired:
-                continue
-            else:
-                # Canonicalize order by sorting UUIDs
-                if card["id"] < base_card["id"]:
-                    first, second = card, base_card
-                else:
-                    first, second = base_card, card
-                pairs.append({
+            pairs.append(
+                {
                     "first_id": first["id"],
                     "second_id": second["id"],
                     "name": f"{first['name']} | {second['name']}",
-                    "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
+                    "color_identity": parse_color_identity(
+                        first["color_identity"], second["color_identity"]
+                    ),
                     "image_uri": [first["image_uri"], second["image_uri"]],
-                    "partner_type": partner_type
-                })
-                already_paired.add(card["id"] + base_card["id"])
-                already_paired.add(base_card["id"] + card["id"])
+                    "partner_type": partner_type,
+                }
+            )
+            del unpaired[card["name"]]
+        else:
+            partner_text = card["oracle_text"].split("Partner with ")[-1]
+            partner = partner_text.split("\n")[0].split(" (")[0].strip()
+            unpaired[partner] = card
+
+    if len(unpaired) > 0:
+        logging.warning("%d unpaired specific partners found:", len(unpaired))
+        for partner_name, card in unpaired.items():
+            logging.warning(
+                " - %s (expects partner named '%s')", card["name"], partner_name
+            )
 
     return pairs
 
-def process_type_partner(cards: List[AvailableCommander], type_line: str, partner_type: str) -> List[PartnerPair]:
+
+def process_generic_partner(
+    cards: List[AvailableCommander], partner_type: str
+) -> List[PartnerPair]:
+    """Create all possible partner pairs from cards."""
+    pairs = []
+    for first, second in itertools.combinations(cards, 2):
+        # Canonicalize order by sorting UUIDs
+        if first["id"] > second["id"]:
+            first, second = second, first
+        pairs.append(
+            {
+                "first_id": first["id"],
+                "second_id": second["id"],
+                "name": f"{first['name']} | {second['name']}",
+                "color_identity": parse_color_identity(
+                    first["color_identity"], second["color_identity"]
+                ),
+                "image_uri": [first["image_uri"], second["image_uri"]],
+                "partner_type": partner_type,
+            }
+        )
+
+    return pairs
+
+
+def process_type_partner(
+    cards: List[AvailableCommander], type_line: str, partner_type: str
+) -> List[PartnerPair]:
+    """Create partner pairs between type_line cards and others."""
     available_to_pair = [card for card in cards if type_line in card["type_line"]]
     rest = [card for card in cards if card not in available_to_pair]
     pairs = []
@@ -197,47 +228,64 @@ def process_type_partner(cards: List[AvailableCommander], type_line: str, partne
                 first, second = card, base_card
             else:
                 first, second = base_card, card
-            pairs.append({
-                "first_id": first["id"],
-                "second_id": second["id"],
-                "name": f"{first['name']} | {second['name']}",
-                "color_identity": parse_color_identity(first["color_identity"], second["color_identity"]),
-                "image_uri": [first["image_uri"], second["image_uri"]],
-                "partner_type": partner_type
-            })
+            pairs.append(
+                {
+                    "first_id": first["id"],
+                    "second_id": second["id"],
+                    "name": f"{first['name']} | {second['name']}",
+                    "color_identity": parse_color_identity(
+                        first["color_identity"], second["color_identity"]
+                    ),
+                    "image_uri": [first["image_uri"], second["image_uri"]],
+                    "partner_type": partner_type,
+                }
+            )
 
     return pairs
 
-def upsert_partners(client: supabase.Client, pairs: List[PartnerPair]):
+
+def upsert_partners(client: supabase.Client, pairs: List[PartnerPair]) -> None:
+    """Upsert partner pairs to database."""
     try:
-        response = client.table('partners').upsert(pairs).execute()
-        print(f"Upserted {len(response.data)} partner pairs.")
-    except Exception as e:
-        print(f"Error upserting partners: {e}")
+        response = client.table("partners").upsert(pairs).execute()
+        logging.info("Upserted %d partner pairs.", len(response.data))
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logging.error("Error upserting partners: %s", exc)
+
 
 if __name__ == "__main__":
-    client = get_client()
-    commanders = get_cards(client)
-    print(f"Retrieved {len(commanders)} available commanders from the database.")
-    partner_cards = discard_non_partner_cards(commanders)
-    print(f"Filtered to {len(partner_cards)} partner cards.")
-    categorized_partners = categorize_partners(partner_cards)
-    print(f"Cleaining up the partner table...")
-    client.table('partners').delete().neq("name", "All").execute()
-    print("Creating pairs for 'Partner with' commanders...")
-    partner_with = process_specific_partners(categorized_partners['SPECIFIC'], "Partner with")
-    upsert_partners(client, partner_with)
-    print("Creating pairs for 'Doctor Who' commanders...")
-    doctor_companions = process_type_partner(categorized_partners['DOCTOR_COMPANION'], "Time Lord Doctor", "Doctor Who")
-    upsert_partners(client, doctor_companions)
-    print("Creating pairs for 'Background' commanders...")
-    backgrounds = process_type_partner(categorized_partners['BACKGROUND'], "Background", "Background")
-    upsert_partners(client, backgrounds)
-    print("Creating pairs for 'Friends Forever' commanders...")
-    friends_forever = process_generic_partner(categorized_partners['FRIENDS_FOREVER'], "Friends Forever")
-    upsert_partners(client, friends_forever)
-    print("Creating pairs for generic partners...")
-    generic_partners = process_generic_partner(categorized_partners['GENERIC'], "Partner")
-    upsert_partners(client, generic_partners)
+    supabase_client = get_supabase_client()
+    all_commanders = get_cards(supabase_client)
+    logging.info(
+        "Retrieved %d available commanders from database.", len(all_commanders)
+    )
+    non_partner_filtered = discard_non_partner_cards(all_commanders)
+    logging.info("Filtered to %d partner cards.", len(non_partner_filtered))
+    categorized = categorize_partners(non_partner_filtered)
+    logging.info("Cleaning up the partner table...")
+    supabase_client.table("partners").delete().neq("name", "All").execute()
+    logging.info("Creating pairs for 'Partner with' commanders...")
+    partner_with_pairs = process_specific_partners(
+        categorized["SPECIFIC"], "Partner with"
+    )
+    upsert_partners(supabase_client, partner_with_pairs)
+    logging.info("Creating pairs for 'Doctor Who' commanders...")
+    doctor_companions = process_type_partner(
+        categorized["DOCTOR_COMPANION"], "Time Lord Doctor", "Doctor Who"
+    )
+    upsert_partners(supabase_client, doctor_companions)
+    logging.info("Creating pairs for 'Background' commanders...")
+    backgrounds = process_type_partner(
+        categorized["BACKGROUND"], "Background", "Background"
+    )
+    upsert_partners(supabase_client, backgrounds)
+    logging.info("Creating pairs for 'Friends Forever' commanders...")
+    friends_forever = process_generic_partner(
+        categorized["FRIENDS_FOREVER"], "Friends Forever"
+    )
+    upsert_partners(supabase_client, friends_forever)
+    logging.info("Creating pairs for generic partners...")
+    generic_partners = process_generic_partner(categorized["GENERIC"], "Partner")
+    upsert_partners(supabase_client, generic_partners)
 
-    print("Partner pairs upserted successfully.")
+    logging.info("Partner pairs upserted successfully.")
