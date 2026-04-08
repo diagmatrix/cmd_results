@@ -31,6 +31,15 @@ export interface GameFormData {
   gameDate: string;
 }
 
+export interface CommanderMatchup {
+  commander: string;
+  opponent: string;
+  games_together: number;
+  won: number;
+  opponent_won: number;
+  neither_won: number;
+}
+
 interface GameDates {
   date: string;
   games: number;
@@ -94,8 +103,10 @@ export class CommanderData {
   colorIdentity?: string;
   imageUris?: string[];
   cardIds?: string[];
+  tier?: string;
+  winrateDelta?: number;
 
-  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, players: string[], game_dates: GameDates[], color_identity?: string, image_uris?: string[], card_ids?: string[]) {
+  constructor(commander: string, games_played: number, games_won: number, games_started: number, games_won_and_started: number, players: string[], game_dates: GameDates[], color_identity?: string, image_uris?: string[], card_ids?: string[], tier?: string, winrate_delta?: number) {
     this.commander = commander;
     this.games = games_played;
     this.wins = games_won;
@@ -106,6 +117,8 @@ export class CommanderData {
     this.colorIdentity = color_identity;
     this.imageUris = image_uris;
     this.cardIds = card_ids;
+    this.tier = tier;
+    this.winrateDelta = winrate_delta;
   }
 
   winrate(): string {

@@ -30,7 +30,9 @@ SELECT
     games.game_dates,
     players.players,
 	commander_names.image_uris,
-	commander_names.card_ids
+	commander_names.card_ids,
+	tiers.tier,
+	tiers.winrate_delta
 FROM public.commander_stats games_stats
 INNER JOIN games 
     ON games_stats.commander = games.commander
@@ -38,4 +40,7 @@ INNER JOIN players
     ON games_stats.commander = players.commander
 INNER JOIN public.commander_names
     ON games_stats.commander = commander_names.name
+LEFT JOIN public.commander_tiers tiers
+    ON games_stats.commander = tiers.commander
 ORDER BY games_stats.games_played DESC;
+

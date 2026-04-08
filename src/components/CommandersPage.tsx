@@ -12,7 +12,7 @@ interface CommanderPageProps {
 }
 
 type ColorMode = 'exact' | 'atMost' | 'atLeast';
-type OrderBy = 'games' | 'wins' | 'name' | 'winrate';
+type OrderBy = 'games' | 'wins' | 'name' | 'winrate' | 'tier';
 type OrderDir = 'asc' | 'desc';
 
 const COLORS = ['W', 'U', 'B', 'R', 'G', 'C'] as const;
@@ -91,6 +91,23 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
 
     // Sort
     result.sort((a, b) => {
+      // Handle tier specially to keep unranked at bottom always
+      if (orderBy === 'tier') {
+        const tierOrder: Record<string, number> = { 'S': 4, 'A': 3, 'B': 2, 'C': 1 };
+        const valueA = a.tier ? tierOrder[a.tier] : 0;
+        const valueB = b.tier ? tierOrder[b.tier] : 0;
+        
+        // If one is unranked and other isn't, unranked always goes last
+        if ((valueA === 0) !== (valueB === 0)) {
+          return valueA === 0 ? 1 : -1;
+        }
+        
+        // Otherwise sort normally (asc for C→S, desc for S→C)
+        return orderDir === 'asc' 
+          ? valueA - valueB
+          : valueB - valueA;
+      }
+
       let valueA: number | string;
       let valueB: number | string;
       
@@ -369,28 +386,40 @@ export default function CommanderPage({ isDark = true }: CommanderPageProps) {
               >
                 Wins
               </button>
-              <button
-                onClick={() => setOrderBy('winrate')}
-                className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
-                  orderBy === 'winrate' ? 'font-bold' : ''
-                }`}
-                style={{
-                  backgroundColor: orderBy === 'winrate' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
-                  color: orderBy === 'winrate' ? '#60a5fa' : 'var(--text-secondary)'
-                }}
-              >
-                Winrate
-              </button>
-              <button
-                onClick={() => setOrderDir(prev => prev === 'asc' ? 'desc' : 'asc')}
-                className="px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md"
-                style={{
-                  backgroundColor: 'var(--bg-tertiary)',
-                  color: 'var(--text-primary)'
-                }}
-              >
-                {orderDir === 'asc' ? '↑ Asc' : '↓ Desc'}
-              </button>
+               <button
+                 onClick={() => setOrderBy('winrate')}
+                 className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                   orderBy === 'winrate' ? 'font-bold' : ''
+                 }`}
+                 style={{
+                   backgroundColor: orderBy === 'winrate' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                   color: orderBy === 'winrate' ? '#60a5fa' : 'var(--text-secondary)'
+                 }}
+               >
+                 Winrate
+               </button>
+               <button
+                 onClick={() => setOrderBy('tier')}
+                 className={`px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md ${
+                   orderBy === 'tier' ? 'font-bold' : ''
+                 }`}
+                 style={{
+                   backgroundColor: orderBy === 'tier' ? 'var(--bg-tertiary)' : 'var(--bg-primary)',
+                   color: orderBy === 'tier' ? '#60a5fa' : 'var(--text-secondary)'
+                 }}
+               >
+                 Tier
+               </button>
+               <button
+                 onClick={() => setOrderDir(prev => prev === 'asc' ? 'desc' : 'asc')}
+                 className="px-3 py-1 rounded text-sm transition-all duration-200 hover:scale-105 hover:shadow-md"
+                 style={{
+                   backgroundColor: 'var(--bg-tertiary)',
+                   color: 'var(--text-primary)'
+                 }}
+               >
+                 {orderDir === 'asc' ? '↑ Asc' : '↓ Desc'}
+               </button>
             </div>
           </div>
 

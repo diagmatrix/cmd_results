@@ -66,12 +66,39 @@ export function CommanderGrid({
           {formatPartners(commander.commander)}
         </div>
 
+        {/* Tier badge */}
+        <div
+          className="px-2 py-1 rounded-full font-bold text-white text-xs mb-1"
+          style={{
+            backgroundColor:
+              commander.tier === 'S' ? '#d97706' :
+              commander.tier === 'A' ? '#a855f7' :
+              commander.tier === 'B' ? '#3b82f6' :
+              commander.tier === 'C' ? '#6b7280' :
+              '#9ca3af'
+          }}
+        >
+          {commander.tier ? `Tier ${commander.tier}` : 'Unranked'}
+        </div>
+
         {/* Stats */}
         <div className="text-md font-bold" style={{ color: 'var(--text-secondary)' }}>
           {commander.wins}/{commander.games}
         </div>
-        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          {commander.winrate()}% win rate
+        <div className="flex items-center justify-center gap-2">
+          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {commander.winrate()}% win rate
+          </div>
+          {commander.tier && commander.winrateDelta !== undefined && commander.winrateDelta !== 0 && (
+            <div
+              className="text-sm font-semibold"
+              style={{
+                color: commander.winrateDelta > 0 ? '#4ade80' : '#f87171'
+              }}
+            >
+              {commander.winrateDelta > 0 ? '+' : ''}{commander.winrateDelta.toFixed(2)}%
+            </div>
+          )}
         </div>
       </button>
     );
