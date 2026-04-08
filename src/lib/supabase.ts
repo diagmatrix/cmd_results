@@ -112,19 +112,37 @@ export async function fetchAllGames(): Promise<Game[]> {
 }
 
 export async function insertGame(gameData: GameFormData): Promise<{ error: Error | null }> {
-  const gameId = crypto.randomUUID();
-  
-  const participants = gameData.playerData.map(pd => ({
-    game_id: gameId,
-    game_date: gameData.gameDate,
-    player: pd.player,
-    commander: pd.commander,
-    is_winner: gameData.winner === pd.player,
-    is_starting: gameData.startingPlayer === pd.player
-  }));
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/insert-game`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+      },
+      body: JSON.stringify(gameData)
+    });
 
-  const { error } = await supabase.from('games').insert(participants);
-  return { error };
+    if (!response.ok) {
+      if (response.status === 429) {
+        // Rate limit exceeded
+        const errorData = await response.json();
+        const retryAfter = errorData.retryAfter || 60;
+        return { error: new Error(`Rate limit exceeded. Try again in ${retryAfter} seconds.`) };
+      }
+      // Other HTTP errors
+      const errorData = await response.json();
+      return { error: new Error(errorData.error || 'Failed to insert game') };
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      return { error: new Error(data.error || 'Unknown error from insert function') };
+    }
+
+    return { error: null };
+  } catch (error) {
+    return { error: error instanceof Error ? error : new Error('Network error') };
+  }
 }
 
 export async function fetchCommanderNames(searchTerm: string, limit: number = 5): Promise<CommanderName[]> {
