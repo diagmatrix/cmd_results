@@ -186,7 +186,8 @@ export async function fetchAllCommanders(): Promise<CommanderData[]> {
   ));
 }
 
-export async function fetchCard(cardId: string): Promise<Object> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function fetchCard(cardId: string): Promise<any> {
   const { data, error } = await supabase
     .from('cards')
     .select('raw_card')
