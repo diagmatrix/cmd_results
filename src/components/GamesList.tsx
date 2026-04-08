@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Game, PlayerData } from '../lib/model';
-import { escapeHtml } from '../lib/utils';
 import { fetchRecentGames } from '../lib/supabase';
 import { Spinner } from './Spinner';
 
@@ -43,7 +42,7 @@ export function GamesList({ limit = 10, isDark = true, refreshTrigger = 0 }: Gam
         <div key={game.id} className="rounded p-4" style={{ backgroundColor: 'var(--bg-tertiary)', borderLeft: isDark ? 'none' : '3px solid #9333ea' }}>
           <div className="flex justify-between items-start">
             <div>
-              <span className="font-semibold" style={{ color: isDark ? '#4ade80' : '#15803d' }}>{escapeHtml(game.winner)}</span>
+              <span className="font-semibold" style={{ color: isDark ? '#4ade80' : '#15803d' }}>{game.winner}</span>
               <span style={{ color: 'var(--text-secondary)' }}> won</span>
             </div>
             <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -54,12 +53,12 @@ export function GamesList({ limit = 10, isDark = true, refreshTrigger = 0 }: Gam
             {game.player_data.map((p: PlayerData, i: number) => (
               <div key={i} className="flex justify-between">
                 <span style={{ color: 'var(--text-primary)' }}>
-                  {escapeHtml(p.player)}
+                  {p.player}
                   {p.player === game.starting_player && (
                     <span className="text-xs" style={{ color: isDark ? '#fcd34d' : '#b45309' }}> started</span>
                   )}
                 </span>
-                <span style={{ color: isDark ? '#c4b5fd' : '#7c3aed' }}>{escapeHtml(p.commander)}</span>
+                <span style={{ color: isDark ? '#c4b5fd' : '#7c3aed' }}>{p.commander}</span>
               </div>
             ))}
           </div>

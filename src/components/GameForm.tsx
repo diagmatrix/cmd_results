@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { insertGame, fetchCommanderNames } from '../lib/supabase';
 import { type GameFormData } from '../lib/model';
-import { escapeHtml } from '../lib/utils';
 import type { CommanderName } from '../lib/model';
 
 interface PlayerRow {
@@ -42,7 +41,7 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [activeRowIndex]);
 
-  const playerNames = playerRows.map(r => r.player).filter(Boolean);
+  const playerNames = playerRows.map(r => r.player.trim()).filter(Boolean);
 
   const handlePlayerChange = (index: number, field: 'player' | 'commander', value: string) => {
     const newRows = [...playerRows];
@@ -179,8 +178,8 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
                         className="w-full text-left px-3 py-2 text-sm border-b last:border-b-0"
                         style={{ color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#e5e7eb' }}
                       >
-                        {suggestion.has_been_played === true && <span className="mr-2" style={{ color: isDark ? '#fcd34d' : '#b45309' }}>★</span>}
-                        {escapeHtml(suggestion.name)}
+{suggestion.has_been_played === true && <span className="mr-2" style={{ color: isDark ? '#fcd34d' : '#b45309' }}>★</span>}
+{suggestion.name}
                       </button>
                     ))}
                   </div>
@@ -212,35 +211,35 @@ export function GameForm({ isDark = true, onSuccess }: GameFormProps) {
             required
           />
         </div>
-        <div>
-          <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Winner</label>
-          <select
-            value={winner}
-            onChange={(e) => setWinner(e.target.value)}
-            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
-            className="w-full border rounded px-3 py-2"
-            required
-          >
-            <option value="">Select...</option>
-            {playerNames.map(n => (
-              <option key={n} value={escapeHtml(n)}>{escapeHtml(n)}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Starting Player</label>
-          <select
-            value={startingPlayer}
-            onChange={(e) => setStartingPlayer(e.target.value)}
-            style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
-            className="w-full border rounded px-3 py-2"
-          >
-            <option value="">Select...</option>
-            {playerNames.map(n => (
-              <option key={n} value={escapeHtml(n)}>{escapeHtml(n)}</option>
-            ))}
-          </select>
-        </div>
+<div>
+  <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Winner</label>
+  <select
+    value={winner}
+    onChange={(e) => setWinner(e.target.value)}
+    style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+    className="w-full border rounded px-3 py-2"
+    required
+  >
+    <option value="">Select...</option>
+    {playerNames.map(n => (
+      <option key={n} value={n}>{n}</option>
+    ))}
+  </select>
+</div>
+<div>
+  <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Starting Player</label>
+  <select
+    value={startingPlayer}
+    onChange={(e) => setStartingPlayer(e.target.value)}
+    style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: isDark ? '#4b5563' : '#d1d5db' }}
+    className="w-full border rounded px-3 py-2"
+  >
+    <option value="">Select...</option>
+    {playerNames.map(n => (
+      <option key={n} value={n}>{n}</option>
+    ))}
+  </select>
+</div>
       </div>
 
       {error && (
